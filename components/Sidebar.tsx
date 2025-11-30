@@ -1,7 +1,6 @@
 import React from 'react';
 import { Layout, Layers, FileCode, Code2, Terminal, UploadCloud, Heart, Settings } from 'lucide-react';
-
-const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' ');
+import { cn } from '@/lib/utils';
 
 export type View = 
   | 'home' 

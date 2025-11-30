@@ -1,62 +1,11 @@
 import React, { useState } from 'react';
 import { FileJson, FileCode, Code2, Terminal, UploadCloud } from 'lucide-react';
-
-const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' ');
-
-const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'default' | 'outline' | 'ghost' | 'secondary', size?: 'sm' | 'md' | 'icon' }> = 
-  ({ className, variant = 'default', size = 'md', ...props }) => {
-    const variants = {
-      default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-    } as const;
-    const sizes = {
-      sm: 'h-9 rounded-md px-3',
-      md: 'h-10 px-4 py-2',
-      icon: 'h-10 w-10',
-    } as const;
-    return (
-      <button 
-        className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-          variants[variant],
-          sizes[size],
-          className
-        )}
-        {...props}
-      />
-    );
-};
-
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className, ...props }) => (
-  <input
-    className={cn(
-      "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
-    {...props}
-  />
-);
-
-const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <div className={cn("rounded-lg border bg-card text-card-foreground shadow-sm", className)}>
-    {children}
-  </div>
-);
-
-const Badge: React.FC<{ children: React.ReactNode; variant?: 'default' | 'secondary' | 'outline'; className?: string }> = ({ children, variant = 'default', className }) => {
-  const styles = {
-    default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-    secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    outline: "text-foreground",
-  } as const;
-  return (
-    <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", styles[variant], className)}>
-      {children}
-    </div>
-  );
-};
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export function UploadForm() {
   const [activeTab, setActiveTab] = useState<'template' | 'css' | 'js' | 'html'>('template');
@@ -134,8 +83,7 @@ export function UploadForm() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5">Description</label>
-            <textarea 
-              className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            <Textarea 
               placeholder="Describe what this asset does..."
             />
           </div>
@@ -149,8 +97,8 @@ export function UploadForm() {
           {activeTab === 'template' && (
             <div>
               <label className="block text-sm font-medium mb-1.5">JSON Code</label>
-              <textarea 
-                className="flex min-h-[200px] font-mono w-full rounded-md border border-input bg-slate-950 text-slate-50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              <Textarea 
+                className="min-h-[200px] font-mono bg-slate-950 text-slate-50"
                 placeholder='{"version": "2.0", "elements": []}'
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
@@ -162,8 +110,8 @@ export function UploadForm() {
             <div>
               <label className="block text-sm font-medium mb-1.5">Code</label>
               <div className="relative">
-                <textarea 
-                  className="flex min-h-[200px] font-mono w-full rounded-md border border-input bg-slate-950 text-slate-50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                <Textarea 
+                  className="min-h-[200px] font-mono bg-slate-950 text-slate-50"
                   placeholder={activeTab === 'css' ? '.my-class { color: red; }' : activeTab === 'js' ? 'console.log("Hello World");' : '<div>Hello World</div>'}
                   value={code}
                   onChange={(e) => setCode(e.target.value)}

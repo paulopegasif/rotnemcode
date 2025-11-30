@@ -1,10 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useTheme } from './useTheme';
 import { useFavorites } from './useFavorites';
-import { Plus, Laptop, ChevronRight } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Sidebar, View } from './components/Sidebar';
-import { AssetCard } from './components/AssetCard';
 import { UploadView } from './views/Upload';
 import { Home } from './views/Home';
 import { ListView } from './views/ListView';
@@ -32,71 +30,6 @@ const RECENT_ASSETS: AssetItem[] = [
   { id: '13', title: 'FAQ Accordion Clean', type: 'Section', category: 'faq', status: 'Free', updatedAt: '3 months ago', code: '<section class="faq">...</section>' },
   { id: '14', title: 'Footer Minimal', type: 'Section', category: 'footer', status: 'Free', updatedAt: '3 months ago', code: '<footer class="site-footer">...</footer>' },
 ];
-
-// --- UTILITY COMPONENTS (Simulating shadcn/ui) ---
-
-const cn = (...classes: (string | undefined | null | false)[]) => {
-  return classes.filter(Boolean).join(' ');
-};
-
-const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'default' | 'outline' | 'ghost' | 'secondary', size?: 'sm' | 'md' | 'icon' }> = 
-  ({ className, variant = 'default', size = 'md', ...props }) => {
-    const variants = {
-      default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-      outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-    };
-    const sizes = {
-      sm: 'h-9 rounded-md px-3',
-      md: 'h-10 px-4 py-2',
-      icon: 'h-10 w-10',
-    };
-    return (
-      <button 
-        className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-          variants[variant],
-          sizes[size],
-          className
-        )}
-        {...props}
-      />
-    );
-};
-
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className, ...props }) => (
-  <input
-    className={cn(
-      "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
-    {...props}
-  />
-);
-
-const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <div className={cn("rounded-lg border bg-card text-card-foreground shadow-sm", className)}>
-    {children}
-  </div>
-);
-
-const Badge: React.FC<{ children: React.ReactNode; variant?: 'default' | 'secondary' | 'outline'; className?: string }> = ({ children, variant = 'default', className }) => {
-  const styles = {
-    default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-    secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    outline: "text-foreground",
-  };
-  return (
-    <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", styles[variant], className)}>
-      {children}
-    </div>
-  );
-};
-
-// --- FEATURE COMPONENTS ---
-
-// extracted components are imported
 
 // --- MAIN APP ---
 
