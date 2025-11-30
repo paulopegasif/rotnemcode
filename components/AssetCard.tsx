@@ -10,6 +10,7 @@ import {
   Copy,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -74,8 +75,25 @@ export const AssetCard: React.FC<{
     if (!item.code) return;
     navigator.clipboard.writeText(item.code).then(() => {
       setCopied(true);
+      toast.success('Código copiado!', {
+        description: 'O código foi copiado para a área de transferência.',
+      });
       setTimeout(() => setCopied(false), 1800);
     });
+  };
+
+  const handleToggleFavorite = () => {
+    if (!onToggleFavorite) return;
+    onToggleFavorite(item.id);
+    if (isFavorite) {
+      toast('Removido dos favoritos', {
+        description: `${item.title} foi removido da lista de favoritos.`,
+      });
+    } else {
+      toast.success('Adicionado aos favoritos!', {
+        description: `${item.title} foi adicionado aos favoritos.`,
+      });
+    }
   };
 
   const renderTitle = () => {
@@ -152,7 +170,7 @@ export const AssetCard: React.FC<{
               variant="ghost"
               size="icon"
               className="h-9 w-9"
-              onClick={() => onToggleFavorite?.(item.id)}
+              onClick={handleToggleFavorite}
               aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
             >
               {isFavorite ? (

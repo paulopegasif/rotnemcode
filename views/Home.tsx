@@ -1,22 +1,18 @@
-import { Plus, ChevronRight } from 'lucide-react';
+import { ChevronRight, Plus } from 'lucide-react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { AssetCard, AssetItem } from '../components/AssetCard';
+import { RECENT_ASSETS } from '../App';
+import { AssetCard } from '../components/AssetCard';
+import { useAppStore } from '../store/useAppStore';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-export function Home({
-  recent,
-  onNavigate,
-  isFavorite,
-  onToggleFavorite,
-}: {
-  recent: AssetItem[];
-  onNavigate: (view: 'upload' | 'templates') => void;
-  isFavorite?: (id: string) => boolean;
-  onToggleFavorite?: (id: string) => void;
-}) {
+export function Home() {
+  const navigate = useNavigate();
+  const isFavorite = useAppStore((state) => state.isFavorite);
+  const toggleFavorite = useAppStore((state) => state.toggleFavorite);
   return (
     <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -26,7 +22,7 @@ export function Home({
             Organize, visualize and manage your Elementor assets in one place.
           </p>
         </div>
-        <Button onClick={() => onNavigate('upload')} className="shadow-lg shadow-primary/20">
+        <Button onClick={() => navigate('/upload')} className="shadow-lg shadow-primary/20">
           <Plus className="h-4 w-4 mr-2" />
           New Upload
         </Button>
@@ -49,18 +45,18 @@ export function Home({
             variant="ghost"
             size="sm"
             className="text-primary"
-            onClick={() => onNavigate('templates')}
+            onClick={() => navigate('/templates')}
           >
             View All
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recent.map((asset) => (
+          {RECENT_ASSETS.slice(0, 6).map((asset) => (
             <AssetCard
               key={asset.id}
               item={asset}
-              isFavorite={isFavorite?.(asset.id)}
-              onToggleFavorite={onToggleFavorite}
+              isFavorite={isFavorite(asset.id)}
+              onToggleFavorite={toggleFavorite}
             />
           ))}
         </div>

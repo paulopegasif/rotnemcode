@@ -1,8 +1,11 @@
 import { PackageOpen } from 'lucide-react';
 import React from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { AssetCard, AssetItem, ComponentCategory } from '../components/AssetCard';
+import { RECENT_ASSETS } from '../App';
+import { AssetCard, ComponentCategory } from '../components/AssetCard';
 import { EmptyState } from '../components/EmptyState';
+import { useAppStore } from '../store/useAppStore';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,19 +28,31 @@ const CATEGORY_LABELS: Record<ComponentCategory | 'all', string> = {
   faq: 'FAQ',
 };
 
-export function ComponentsView({
-  items,
-  onAdd,
-  isFavorite,
-  onToggleFavorite,
-  highlight,
-}: {
-  items: AssetItem[];
-  onAdd: () => void;
-  isFavorite?: (id: string) => boolean;
-  onToggleFavorite?: (id: string) => void;
-  highlight?: string;
-}) {
+export function ComponentsView() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isFavorite = useAppStore((state) => state.isFavorite);
+  const toggleFavorite = useAppStore((state) => state.toggleFavorite);
+
+  const highlight = searchParams.get('highlight') || undefined;
+
+  // Filtrar apenas components (baseado em categorias de componente)
+  const items = React.useMemo(() => {
+    const componentCategories: ComponentCategory[] = [
+      'codes',
+      'buttons',
+      'forms',
+      'animations',
+      'advanced-animations',
+      'carousels',
+      'hovers',
+      'customizations',
+      'tools',
+    ];
+    return RECENT_ASSETS.filter(
+      (a) => a.category && componentCategories.includes(a.category as ComponentCategory)
+    );
+  }, []);
   const [selectedCategories, setSelectedCategories] = React.useState<Set<ComponentCategory>>(() => {
     try {
       const stored = localStorage.getItem('rotnemcode-selected-categories');
@@ -70,14 +85,16 @@ export function ComponentsView({
 
   const filteredItems = React.useMemo(() => {
     if (selectedCategories.size === 0) return items;
-    return items.filter((item) => item.category && selectedCategories.has(item.category));
+    return items.filter(
+      (item) => item.category && selectedCategories.has(item.category as ComponentCategory)
+    );
   }, [items, selectedCategories]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Components</h1>
-        <Button variant="outline" onClick={onAdd}>
+        <Button variant="outline" onClick={() => navigate('/upload')}>
           Add New
         </Button>
       </div>
@@ -117,8 +134,8 @@ export function ComponentsView({
           <AssetCard
             key={asset.id}
             item={asset}
-            isFavorite={isFavorite?.(asset.id)}
-            onToggleFavorite={onToggleFavorite}
+            isFavorite={isFavorite(asset.id)}
+            onToggleFavorite={toggleFavorite}
             highlight={highlight}
           />
         ))}
@@ -132,7 +149,7 @@ export function ComponentsView({
                 : 'Nenhum componente nas categorias selecionadas.'
             }
             actionLabel="Enviar agora"
-            onAction={onAdd}
+            onAction={() => navigate('/upload')}
           />
         )}
       </div>

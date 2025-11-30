@@ -1,7 +1,8 @@
-import { Search, Moon, Sun, Bell, Menu, X, Layers } from 'lucide-react';
+import { Bell, Layers, Menu, Moon, Search, Sun, X } from 'lucide-react';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useTheme } from '../useTheme';
+import { useAppStore } from '../store/useAppStore';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,17 +10,15 @@ import { Input } from '@/components/ui/input';
 export function Navbar({
   onToggleSidebar,
   sidebarOpen,
-  onLogoClick,
-  searchQuery,
-  onSearchChange,
 }: {
   onToggleSidebar: () => void;
   sidebarOpen: boolean;
-  onLogoClick: () => void;
-  searchQuery: string;
-  onSearchChange: (q: string) => void;
 }) {
-  const { isDark, toggle } = useTheme();
+  const navigate = useNavigate();
+  const isDark = useAppStore((state) => state.isDark);
+  const toggleTheme = useAppStore((state) => state.toggleTheme);
+  const searchQuery = useAppStore((state) => state.searchQuery);
+  const setSearchQuery = useAppStore((state) => state.setSearchQuery);
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center px-4 md:px-6 gap-4">
@@ -34,8 +33,8 @@ export function Navbar({
 
         <button
           className="flex items-center gap-2 font-bold text-xl cursor-pointer bg-transparent border-none p-0"
-          onClick={onLogoClick}
-          onKeyDown={(e) => e.key === 'Enter' && onLogoClick()}
+          onClick={() => navigate('/')}
+          onKeyDown={(e) => e.key === 'Enter' && navigate('/')}
           aria-label="Ir para home"
         >
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
@@ -53,7 +52,7 @@ export function Navbar({
               className="w-full pl-9 bg-muted/50 border-transparent focus:bg-background focus:border-input transition-all"
               aria-label="Buscar na biblioteca"
               value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
@@ -62,7 +61,7 @@ export function Navbar({
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggle}
+            onClick={toggleTheme}
             title="Toggle Theme"
             aria-label="Alternar tema"
           >

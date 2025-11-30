@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 
 // --- MOCK DATA ---
 
-const RECENT_ASSETS: AssetItem[] = [
+export const RECENT_ASSETS: AssetItem[] = [
   {
     id: '1',
     title: 'Hero Section - SaaS Dark',

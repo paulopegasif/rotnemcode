@@ -1,5 +1,6 @@
-import { FileJson, FileCode, Code2, Terminal } from 'lucide-react';
+import { Code2, FileCode, FileJson, Terminal } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -9,15 +10,12 @@ import { Textarea } from '@/components/ui/textarea';
 export function UploadForm() {
   const [activeTab, setActiveTab] = useState<'template' | 'css' | 'js' | 'html'>('template');
   const [code, setCode] = useState('');
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const [validationSuccess, setValidationSuccess] = useState(false);
 
   const validateCode = () => {
-    setValidationError(null);
-    setValidationSuccess(false);
-
     if (!code.trim()) {
-      setValidationError('Por favor, adicione o código antes de salvar.');
+      toast.error('Código vazio', {
+        description: 'Por favor, adicione o código antes de salvar.',
+      });
       return false;
     }
 
@@ -25,32 +23,41 @@ export function UploadForm() {
       try {
         const parsed = JSON.parse(code);
         if (!parsed.version && !parsed.content && !parsed.elements) {
-          setValidationError(
-            'JSON deve conter "version", "content" ou "elements" (estrutura Elementor).'
-          );
+          toast.error('Estrutura JSON inválida', {
+            description:
+              'JSON deve conter "version", "content" ou "elements" (estrutura Elementor).',
+          });
           return false;
         }
       } catch {
-        setValidationError('JSON inválido. Verifique a sintaxe.');
+        toast.error('JSON inválido', {
+          description: 'Verifique a sintaxe do JSON.',
+        });
         return false;
       }
     }
 
     if (activeTab === 'css') {
       if (!code.includes('{') || !code.includes('}')) {
-        setValidationError('CSS deve conter pelo menos um bloco { }.');
+        toast.error('CSS inválido', {
+          description: 'CSS deve conter pelo menos um bloco { }.',
+        });
         return false;
       }
     }
 
     if (activeTab === 'js') {
       if (code.includes('eval(') || code.includes('Function(')) {
-        setValidationError('Código JS contém funções potencialmente inseguras (eval, Function).');
+        toast.error('Código inseguro detectado', {
+          description: 'Código JS contém funções potencialmente inseguras (eval, Function).',
+        });
         return false;
       }
     }
 
-    setValidationSuccess(true);
+    toast.success('Código validado!', {
+      description: 'O código passou em todas as validações.',
+    });
     return true;
   };
 
@@ -154,24 +161,6 @@ export function UploadForm() {
             </div>
           )}
 
-          {validationError && (
-            <div
-              className="p-3 rounded-md bg-red-500/10 border border-red-500/50 text-red-600 dark:text-red-400 text-sm"
-              role="alert"
-            >
-              {validationError}
-            </div>
-          )}
-
-          {validationSuccess && (
-            <div
-              className="p-3 rounded-md bg-green-500/10 border border-green-500/50 text-green-600 dark:text-green-400 text-sm"
-              role="status"
-            >
-              ✓ Validação bem-sucedida! Pronto para salvar.
-            </div>
-          )}
-
           <div className="pt-4 flex gap-2 justify-end">
             <Button type="button" variant="outline" size="md" onClick={validateCode}>
               Validar
@@ -179,7 +168,13 @@ export function UploadForm() {
             <Button
               size="md"
               className="w-full sm:w-auto"
-              onClick={() => validateCode() && alert('Salvando...')}
+              onClick={() => {
+                if (validateCode()) {
+                  toast.success('Salvo com sucesso!', {
+                    description: 'O asset foi adicionado à sua biblioteca.',
+                  });
+                }
+              }}
             >
               Salvar na Biblioteca
             </Button>

@@ -1,29 +1,40 @@
 import { PackageOpen } from 'lucide-react';
 import React from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { AssetCard, AssetItem } from '../components/AssetCard';
+import { RECENT_ASSETS } from '../App';
+import { AssetCard } from '../components/AssetCard';
 import { EmptyState } from '../components/EmptyState';
+import { useAppStore } from '../store/useAppStore';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-export function ListView({
-  title,
-  items,
-  onAdd,
-  emptyMessage,
-  isFavorite,
-  onToggleFavorite,
-  highlight,
-}: {
-  title: string;
-  items: AssetItem[];
-  onAdd: () => void;
-  emptyMessage: string;
-  isFavorite?: (id: string) => boolean;
-  onToggleFavorite?: (id: string) => void;
-  highlight?: string;
-}) {
+type ViewType = 'template' | 'section' | 'favorites';
+
+export function ListView({ type }: { type: ViewType }) {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isFavorite = useAppStore((state) => state.isFavorite);
+  const toggleFavorite = useAppStore((state) => state.toggleFavorite);
+  const favorites = useAppStore((state) => state.favorites);
+
+  const highlight = searchParams.get('highlight') || undefined;
+
+  // Filtrar items baseado no tipo
+  const items = React.useMemo(() => {
+    if (type === 'favorites') {
+      return RECENT_ASSETS.filter((a) => favorites.includes(a.id));
+    }
+    const category = type === 'template' ? 'template' : 'section';
+    return RECENT_ASSETS.filter((a) => a.category === category);
+  }, [type, favorites]);
+
+  const title = type === 'favorites' ? 'Favorites' : `${type}s`;
+  const emptyMessage =
+    type === 'favorites'
+      ? 'No favorites yet. Star some assets to see them here!'
+      : `No ${type}s available. Upload your first ${type}!`;
   const [statusFilter, setStatusFilter] = React.useState<'all' | 'Free' | 'Pro' | 'Archived'>(
     'all'
   );
@@ -38,7 +49,7 @@ export function ListView({
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold capitalize">{title}</h1>
-        <Button variant="outline" onClick={onAdd}>
+        <Button variant="outline" onClick={() => navigate('/upload')}>
           Add New
         </Button>
       </div>
@@ -81,8 +92,8 @@ export function ListView({
           <AssetCard
             key={asset.id}
             item={asset}
-            isFavorite={isFavorite?.(asset.id)}
-            onToggleFavorite={onToggleFavorite}
+            isFavorite={isFavorite(asset.id)}
+            onToggleFavorite={toggleFavorite}
             highlight={highlight}
           />
         ))}
@@ -91,8 +102,8 @@ export function ListView({
             icon={PackageOpen}
             title="Nenhum item encontrado"
             description={emptyMessage}
-            actionLabel="Enviar agora"
-            onAction={onAdd}
+            actionLabel="Adicionar novo"
+            onAction={() => navigate('/upload')}
           />
         )}
       </div>
