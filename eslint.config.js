@@ -22,6 +22,14 @@ export default [
       globals: {
         React: 'readonly',
         JSX: 'readonly',
+        document: 'readonly',
+        window: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        alert: 'readonly',
+        console: 'readonly',
       },
     },
     plugins: {
