@@ -1,5 +1,7 @@
 import React from 'react';
 import { AssetCard, AssetItem } from '../components/AssetCard';
+import { EmptyState } from '../components/EmptyState';
+import { PackageOpen } from 'lucide-react';
 
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' ');
 const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'default' | 'outline' | 'ghost' | 'secondary'; size?: 'sm' | 'md' | 'icon' }> = ({ className, variant = 'default', size = 'md', ...props }) => {
@@ -13,7 +15,15 @@ const Badge: React.FC<{ children: React.ReactNode; variant?: 'default' | 'second
   return <div className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors', styles[variant], className)}>{children}</div>;
 };
 
-export function ListView({ title, items, onAdd, emptyMessage, isFavorite, onToggleFavorite }: { title: string; items: AssetItem[]; onAdd: () => void; emptyMessage: string; isFavorite?: (id: string) => boolean; onToggleFavorite?: (id: string) => void; }) {
+export function ListView({ title, items, onAdd, emptyMessage, isFavorite, onToggleFavorite, highlight }: { title: string; items: AssetItem[]; onAdd: () => void; emptyMessage: string; isFavorite?: (id: string) => boolean; onToggleFavorite?: (id: string) => void; highlight?: string; }) {
+  const [statusFilter, setStatusFilter] = React.useState<'all' | 'Free' | 'Pro' | 'Archived'>('all');
+  const filtered = React.useMemo(() => {
+    return items.filter((a) => {
+      if (statusFilter === 'all') return true;
+      if (statusFilter === 'Archived') return false; // placeholder até termos campo archived
+      return a.status === statusFilter;
+    });
+  }, [items, statusFilter]);
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
@@ -21,22 +31,31 @@ export function ListView({ title, items, onAdd, emptyMessage, isFavorite, onTogg
         <Button variant="outline" onClick={onAdd}>Add New</Button>
       </div>
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
-        <Badge variant="default" className="cursor-pointer">All</Badge>
-        <Badge variant="secondary" className="cursor-pointer bg-background border">Pro</Badge>
-        <Badge variant="secondary" className="cursor-pointer bg-background border">Free</Badge>
-        <Badge variant="secondary" className="cursor-pointer bg-background border">Archived</Badge>
+        <button onClick={() => setStatusFilter('all')} aria-label="Filtrar todos">
+          <Badge variant={statusFilter === 'all' ? 'default' : 'secondary'} className="cursor-pointer">Todos</Badge>
+        </button>
+        <button onClick={() => setStatusFilter('Pro')} aria-label="Filtrar Pro">
+          <Badge variant={statusFilter === 'Pro' ? 'default' : 'secondary'} className="cursor-pointer bg-background border">Pro</Badge>
+        </button>
+        <button onClick={() => setStatusFilter('Free')} aria-label="Filtrar Free">
+          <Badge variant={statusFilter === 'Free' ? 'default' : 'secondary'} className="cursor-pointer bg-background border">Free</Badge>
+        </button>
+        <button onClick={() => setStatusFilter('Archived')} aria-label="Filtrar Arquivados">
+          <Badge variant={statusFilter === 'Archived' ? 'default' : 'secondary'} className="cursor-pointer bg-background border">Arquivados</Badge>
+        </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((asset) => (
-          <AssetCard key={asset.id} item={asset} isFavorite={isFavorite?.(asset.id)} onToggleFavorite={onToggleFavorite} />
+        {filtered.map((asset) => (
+          <AssetCard key={asset.id} item={asset} isFavorite={isFavorite?.(asset.id)} onToggleFavorite={onToggleFavorite} highlight={highlight} />
         ))}
-        {items.length === 0 && (
-          <div className="col-span-full py-20 text-center">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4" />
-            <h3 className="text-lg font-medium">No assets found</h3>
-            <p className="text-muted-foreground mt-1">{emptyMessage}</p>
-            <Button className="mt-4" onClick={onAdd}>Upload Now</Button>
-          </div>
+        {filtered.length === 0 && (
+          <EmptyState
+            icon={PackageOpen}
+            title="Nenhum item encontrado"
+            description={emptyMessage}
+            actionLabel="Enviar agora"
+            onAction={onAdd}
+          />
         )}
       </div>
     </div>

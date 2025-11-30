@@ -25,12 +25,13 @@ RotnemCode é um SaaS (Software as a Service) criado para armazenar, organizar e
 ├── components/
 │   ├── Navbar.tsx          # Barra superior com busca e tema
 │   ├── Sidebar.tsx         # Menu lateral com navegação (Templates, Sections, Components)
-│   ├── AssetCard.tsx       # Card de asset com favoritos e preview
-│   └── UploadForm.tsx      # Formulário multi-tab de upload
+│   ├── AssetCard.tsx       # Card com favoritos, preview de código e copy-to-clipboard
+│   ├── UploadForm.tsx      # Formulário com validação JSON/CSS/JS/HTML
+│   └── EmptyState.tsx      # Componente reutilizável de estado vazio
 ├── views/
 │   ├── Home.tsx            # Dashboard inicial com stats e recentes
-│   ├── ComponentsView.tsx  # View de components com filtros de categoria
-│   ├── ListView.tsx        # View genérica para listas (Templates, Sections, Favorites)
+│   ├── ComponentsView.tsx  # View com multi-seleção de categorias (localStorage)
+│   ├── ListView.tsx        # View genérica para Templates, Sections, Favorites
 │   └── Upload.tsx          # Wrapper do UploadForm
 ├── index.css               # Design tokens (CSS variables HSL) e estilos globais
 ├── useTheme.ts             # Hook de tema dark/light com localStorage
@@ -44,18 +45,25 @@ RotnemCode é um SaaS (Software as a Service) criado para armazenar, organizar e
 
 ## 🎯 Funcionalidades Implementadas
 
-- ✅ Navegação client-side com 4 abas principais:
-  - **Templates**: Páginas completas do Elementor
-  - **Sections**: Seções individuais reutilizáveis
-  - **Components**: Snippets (CSS/JS/HTML) com filtros por 10 categorias (códigos, botões, formulários, animações, animações avançadas, carrosséis, hovers, personalizações, composições, ferramentas)
-  - **Upload Center**: Interface de upload multi-formato
-- ✅ Sistema de categorização por badges clicáveis
-- ✅ Tema dark/light com persistência em `localStorage`
-- ✅ Favoritos locais com toggle (ícone de coração) e persistência em `localStorage`
-- ✅ Busca por título em tempo real com filtragem combinada (busca + categoria + favoritos)
-- ✅ Cards de assets com preview visual, badges de tipo e ações
-- ✅ Arquitetura componentizada e views organizadas
-- ✅ Acessibilidade com aria-labels em elementos interativos
+- ✅ **Navegação client-side** com 4 abas principais:
+  - **Templates**: Páginas completas do Elementor com filtros Free/Pro
+  - **Sections**: Seções individuais (Hero, Footer, Pricing, FAQ) com preview de código
+  - **Components**: Snippets (CSS/JS/HTML) com **seleção múltipla de categorias** (persistida em localStorage)
+  - **Upload Center**: Interface de upload com validação de código (JSON/CSS/JS/HTML)
+- ✅ **Busca inteligente** com highlight amarelo nos termos encontrados
+- ✅ **Copy-to-clipboard** com feedback visual (ícone verde após copiar)
+- ✅ **Preview inline** de código com toggle (botão "Preview"/"Fechar")
+- ✅ **Filtros Free/Pro** em Templates e Sections (via badges clicáveis)
+- ✅ **Multi-seleção de categorias** em Components com persistência localStorage
+- ✅ **Validação de código** no Upload:
+  - JSON: verifica estrutura Elementor (`version`, `content`, `elements`)
+  - CSS: valida presença de blocos `{ }`
+  - JS: detecta funções inseguras (`eval`, `Function`)
+- ✅ **Tema dark/light** com persistência e detecção de preferência do sistema
+- ✅ **Favoritos** com Set em localStorage e sincronização automática
+- ✅ **Componente EmptyState** reutilizável com ícone, título e CTA
+- ✅ **Acessibilidade**: aria-labels, aria-pressed, roles em todos os controles interativos
+- ✅ **Badges de status** (Free/Pro) e tipo nos cards
 
 ## 🛠️ Executar Localmente
 
@@ -86,9 +94,10 @@ RotnemCode é um SaaS (Software as a Service) criado para armazenar, organizar e
 
 ### Componentes e Views
 - Componentes base (`Button`, `Input`, `Card`, `Badge`) inline inspirados em shadcn/ui.
-- Views organizadas: `Home` (dashboard), `ComponentsView` (filtros por categoria), `ListView` (genérica para Templates/Sections/Favorites), `Upload` (formulário).
-- `AssetCard` recebe props de favoritos e renderiza ícones dinâmicos por tipo + categoria.
-- Filtros combinados: busca global + filtro de categoria (em Components) + filtro de favoritos (em Favorites).
+- `EmptyState` reutilizável com ícone customizável e CTA.
+- Views organizadas: `Home` (dashboard), `ComponentsView` (multi-seleção de categorias), `ListView` (Templates/Sections/Favorites com filtros Free/Pro), `Upload` (validação).
+- `AssetCard`: favoritos, highlight de busca, preview inline, copy-to-clipboard com feedback visual.
+- Filtros combinados: busca global + multi-seleção de categorias + filtros Free/Pro + favoritos.
 
 ## 🚧 Próximos Passos (Roadmap)
 

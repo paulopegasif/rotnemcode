@@ -17,18 +17,20 @@ import type { AssetItem, ComponentCategory } from './components/AssetCard';
 // --- MOCK DATA ---
 
 const RECENT_ASSETS: AssetItem[] = [
-  { id: '1', title: 'Hero Section - SaaS Dark', type: 'Section', category: 'compositions', updatedAt: '2 hours ago' },
-  { id: '2', title: 'Landing Page V2', type: 'Template', category: 'compositions', updatedAt: '1 day ago' },
-  { id: '3', title: 'Sticky Header Effect', type: 'CSS', category: 'animations', updatedAt: '2 days ago' },
-  { id: '4', title: 'Dynamic Date Counter', type: 'JS', category: 'codes', updatedAt: '3 days ago' },
-  { id: '5', title: 'Pricing Table - Clean', type: 'Section', category: 'compositions', updatedAt: '1 week ago' },
-  { id: '6', title: 'Custom Form Layout', type: 'HTML', category: 'forms', updatedAt: '1 week ago' },
-  { id: '7', title: 'Animated Button Hover', type: 'CSS', category: 'buttons', updatedAt: '2 weeks ago' },
-  { id: '8', title: 'Image Carousel Auto', type: 'JS', category: 'carousels', updatedAt: '3 weeks ago' },
-  { id: '9', title: 'Smooth Scroll Animation', type: 'JS', category: 'advanced-animations', updatedAt: '1 month ago' },
-  { id: '10', title: 'Card Hover Effect', type: 'CSS', category: 'hovers', updatedAt: '1 month ago' },
-  { id: '11', title: 'Custom Color Picker', type: 'JS', category: 'tools', updatedAt: '2 months ago' },
-  { id: '12', title: 'Dark Mode Toggle', type: 'JS', category: 'customizations', updatedAt: '2 months ago' },
+  { id: '1', title: 'Hero Section - SaaS Dark', type: 'Section', category: 'hero', status: 'Free', updatedAt: '2 hours ago', code: '<section class="hero">...</section>' },
+  { id: '2', title: 'Landing Page V2', type: 'Template', category: 'compositions', status: 'Pro', updatedAt: '1 day ago', code: '{"version": "2.0", "elements": []}' },
+  { id: '3', title: 'Sticky Header Effect', type: 'CSS', category: 'animations', updatedAt: '2 days ago', code: 'header.sticky { position: fixed; top:0; }' },
+  { id: '4', title: 'Dynamic Date Counter', type: 'JS', category: 'codes', updatedAt: '3 days ago', code: 'const days = Math.floor((Date.now()-START)/86400000);' },
+  { id: '5', title: 'Pricing Table - Clean', type: 'Section', category: 'pricing', status: 'Pro', updatedAt: '1 week ago', code: '<section class="pricing">...</section>' },
+  { id: '6', title: 'Custom Form Layout', type: 'HTML', category: 'forms', updatedAt: '1 week ago', code: '<form class="custom-form">...</form>' },
+  { id: '7', title: 'Animated Button Hover', type: 'CSS', category: 'buttons', status: 'Free', updatedAt: '2 weeks ago', code: '.btn:hover { transform: translateY(-2px); }' },
+  { id: '8', title: 'Image Carousel Auto', type: 'JS', category: 'carousels', updatedAt: '3 weeks ago', code: 'initCarousel({ autoplay: true });' },
+  { id: '9', title: 'Smooth Scroll Animation', type: 'JS', category: 'advanced-animations', status: 'Pro', updatedAt: '1 month ago', code: 'document.querySelectorAll("a[href^=#]").forEach(...)' },
+  { id: '10', title: 'Card Hover Effect', type: 'CSS', category: 'hovers', updatedAt: '1 month ago', code: '.card:hover { box-shadow: 0 0 0 2px var(--primary); }' },
+  { id: '11', title: 'Custom Color Picker', type: 'JS', category: 'tools', updatedAt: '2 months ago', code: 'function initColorPicker() { /* ... */ }' },
+  { id: '12', title: 'Dark Mode Toggle', type: 'JS', category: 'customizations', updatedAt: '2 months ago', code: 'document.documentElement.classList.toggle("dark")' },
+  { id: '13', title: 'FAQ Accordion Clean', type: 'Section', category: 'faq', status: 'Free', updatedAt: '3 months ago', code: '<section class="faq">...</section>' },
+  { id: '14', title: 'Footer Minimal', type: 'Section', category: 'footer', status: 'Free', updatedAt: '3 months ago', code: '<footer class="site-footer">...</footer>' },
 ];
 
 // --- UTILITY COMPONENTS (Simulating shadcn/ui) ---
@@ -181,6 +183,7 @@ const App: React.FC = () => {
               emptyMessage={searchQuery ? 'Nenhum template encontrado.' : 'Nenhum template disponível no momento.'}
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
+              highlight={searchQuery}
             />
           )}
 
@@ -193,6 +196,7 @@ const App: React.FC = () => {
               emptyMessage={searchQuery ? 'Nenhuma section encontrada.' : 'Nenhuma section disponível no momento.'}
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
+              highlight={searchQuery}
             />
           )}
 
@@ -208,6 +212,7 @@ const App: React.FC = () => {
               onToggleFavorite={toggleFavorite}
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
+              highlight={searchQuery}
             />
           )}
 
@@ -220,6 +225,7 @@ const App: React.FC = () => {
               emptyMessage={searchQuery ? 'Nenhum favorito encontrado.' : 'Adicione seus componentes favoritos para acesso rápido.'}
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
+              highlight={searchQuery}
             />
           )}
 

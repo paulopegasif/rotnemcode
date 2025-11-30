@@ -60,6 +60,50 @@ const Badge: React.FC<{ children: React.ReactNode; variant?: 'default' | 'second
 
 export function UploadForm() {
   const [activeTab, setActiveTab] = useState<'template' | 'css' | 'js' | 'html'>('template');
+  const [code, setCode] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationSuccess, setValidationSuccess] = useState(false);
+
+  const validateCode = () => {
+    setValidationError(null);
+    setValidationSuccess(false);
+
+    if (!code.trim()) {
+      setValidationError('Por favor, adicione o código antes de salvar.');
+      return false;
+    }
+
+    if (activeTab === 'template') {
+      try {
+        const parsed = JSON.parse(code);
+        if (!parsed.version && !parsed.content && !parsed.elements) {
+          setValidationError('JSON deve conter "version", "content" ou "elements" (estrutura Elementor).');
+          return false;
+        }
+      } catch (e) {
+        setValidationError('JSON inválido. Verifique a sintaxe.');
+        return false;
+      }
+    }
+
+    if (activeTab === 'css') {
+      if (!code.includes('{') || !code.includes('}')) {
+        setValidationError('CSS deve conter pelo menos um bloco { }.');
+        return false;
+      }
+    }
+
+    if (activeTab === 'js') {
+      if (code.includes('eval(') || code.includes('Function(')) {
+        setValidationError('Código JS contém funções potencialmente inseguras (eval, Function).');
+        return false;
+      }
+    }
+
+    setValidationSuccess(true);
+    return true;
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="mb-8">
@@ -100,11 +144,17 @@ export function UploadForm() {
             <Input placeholder="e.g., dark-mode, hero, form (comma separated)" />
           </div>
 
+
+
           {activeTab === 'template' && (
-            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:bg-muted/50 transition-colors cursor-pointer">
-              <UploadCloud className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm font-medium">Click to upload .json file</p>
-              <p className="text-xs text-muted-foreground">or drag and drop Elementor template file</p>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">JSON Code</label>
+              <textarea 
+                className="flex min-h-[200px] font-mono w-full rounded-md border border-input bg-slate-950 text-slate-50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                placeholder='{"version": "2.0", "elements": []}'
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+              />
             </div>
           )}
 
@@ -115,13 +165,28 @@ export function UploadForm() {
                 <textarea 
                   className="flex min-h-[200px] font-mono w-full rounded-md border border-input bg-slate-950 text-slate-50 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   placeholder={activeTab === 'css' ? '.my-class { color: red; }' : activeTab === 'js' ? 'console.log("Hello World");' : '<div>Hello World</div>'}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
                 />
               </div>
             </div>
           )}
 
-          <div className="pt-4 flex justify-end">
-            <Button size="md" className="w-full sm:w-auto">Save to Library</Button>
+          {validationError && (
+            <div className="p-3 rounded-md bg-red-500/10 border border-red-500/50 text-red-600 dark:text-red-400 text-sm" role="alert">
+              {validationError}
+            </div>
+          )}
+
+          {validationSuccess && (
+            <div className="p-3 rounded-md bg-green-500/10 border border-green-500/50 text-green-600 dark:text-green-400 text-sm" role="status">
+              ✓ Validação bem-sucedida! Pronto para salvar.
+            </div>
+          )}
+
+          <div className="pt-4 flex gap-2 justify-end">
+            <Button type="button" variant="outline" size="md" onClick={validateCode}>Validar</Button>
+            <Button size="md" className="w-full sm:w-auto" onClick={() => validateCode() && alert('Salvando...')}>Salvar na Biblioteca</Button>
           </div>
         </div>
       </Card>
