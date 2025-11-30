@@ -49,15 +49,29 @@ const Badge: React.FC<{ children: React.ReactNode; variant?: 'default' | 'second
 };
 
 export type AssetType = 'Template' | 'Section' | 'CSS' | 'JS' | 'HTML';
+
+export type ComponentCategory = 
+  | 'codes'
+  | 'buttons'
+  | 'forms'
+  | 'animations'
+  | 'advanced-animations'
+  | 'carousels'
+  | 'hovers'
+  | 'customizations'
+  | 'compositions'
+  | 'tools';
+
 export interface AssetItem {
   id: string;
   title: string;
   type: AssetType;
+  category?: ComponentCategory;
   updatedAt: string;
   thumbnail?: string;
 }
 
-export const AssetCard: React.FC<{ item: AssetItem }> = ({ item }) => {
+export const AssetCard: React.FC<{ item: AssetItem; isFavorite?: boolean; onToggleFavorite?: (id: string) => void; }> = ({ item, isFavorite = false, onToggleFavorite }) => {
   const getIcon = (type: AssetType) => {
     switch(type) {
       case 'Template': return <Layout className="h-8 w-8 text-blue-500" />;
@@ -88,9 +102,18 @@ export const AssetCard: React.FC<{ item: AssetItem }> = ({ item }) => {
             <Eye className="h-4 w-4 mr-2" />
             View Code
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <MoreVertical className="h-4 w-4 text-muted-foreground" />
-          </Button>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => onToggleFavorite?.(item.id)} aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}>
+              {isFavorite ? (
+                <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              ) : (
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.8 8.5c0 3.6-3.2 6.6-8.8 11.3-5.6-4.7-8.8-7.7-8.8-11.3C3.2 6 5.2 4 7.7 4c1.8 0 3.5.9 4.3 2.3C12.8 4.9 14.5 4 16.3 4c2.5 0 4.5 2 4.5 4.5z"/></svg>
+              )}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </div>
         </div>
       </div>
     </Card>

@@ -1,24 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTheme } from './useTheme';
+import { useFavorites } from './useFavorites';
 import { Plus, Laptop, ChevronRight } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Sidebar, View } from './components/Sidebar';
 import { AssetCard } from './components/AssetCard';
-import { UploadForm } from './components/UploadForm';
+import { UploadView } from './views/Upload';
+import { Home } from './views/Home';
+import { ListView } from './views/ListView';
+import { ComponentsView } from './views/ComponentsView';
 
 // --- TYPES ---
 
-import type { AssetItem } from './components/AssetCard';
+import type { AssetItem, ComponentCategory } from './components/AssetCard';
 
 // --- MOCK DATA ---
 
 const RECENT_ASSETS: AssetItem[] = [
-  { id: '1', title: 'Hero Section - SaaS Dark', type: 'Section', updatedAt: '2 hours ago' },
-  { id: '2', title: 'Landing Page V2', type: 'Template', updatedAt: '1 day ago' },
-  { id: '3', title: 'Sticky Header Effect', type: 'CSS', updatedAt: '2 days ago' },
-  { id: '4', title: 'Dynamic Date Counter', type: 'JS', updatedAt: '3 days ago' },
-  { id: '5', title: 'Pricing Table - Clean', type: 'Section', updatedAt: '1 week ago' },
-  { id: '6', title: 'Custom Form Layout', type: 'HTML', updatedAt: '1 week ago' },
+  { id: '1', title: 'Hero Section - SaaS Dark', type: 'Section', category: 'compositions', updatedAt: '2 hours ago' },
+  { id: '2', title: 'Landing Page V2', type: 'Template', category: 'compositions', updatedAt: '1 day ago' },
+  { id: '3', title: 'Sticky Header Effect', type: 'CSS', category: 'animations', updatedAt: '2 days ago' },
+  { id: '4', title: 'Dynamic Date Counter', type: 'JS', category: 'codes', updatedAt: '3 days ago' },
+  { id: '5', title: 'Pricing Table - Clean', type: 'Section', category: 'compositions', updatedAt: '1 week ago' },
+  { id: '6', title: 'Custom Form Layout', type: 'HTML', category: 'forms', updatedAt: '1 week ago' },
+  { id: '7', title: 'Animated Button Hover', type: 'CSS', category: 'buttons', updatedAt: '2 weeks ago' },
+  { id: '8', title: 'Image Carousel Auto', type: 'JS', category: 'carousels', updatedAt: '3 weeks ago' },
+  { id: '9', title: 'Smooth Scroll Animation', type: 'JS', category: 'advanced-animations', updatedAt: '1 month ago' },
+  { id: '10', title: 'Card Hover Effect', type: 'CSS', category: 'hovers', updatedAt: '1 month ago' },
+  { id: '11', title: 'Custom Color Picker', type: 'JS', category: 'tools', updatedAt: '2 months ago' },
+  { id: '12', title: 'Dark Mode Toggle', type: 'JS', category: 'customizations', updatedAt: '2 months ago' },
 ];
 
 // --- UTILITY COMPONENTS (Simulating shadcn/ui) ---
@@ -91,13 +101,26 @@ const Badge: React.FC<{ children: React.ReactNode; variant?: 'default' | 'second
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<ComponentCategory | 'all'>('all');
   const { isDark: isDarkMode, toggle: toggleTheme } = useTheme();
+  const { toggleFavorite, isFavorite, favorites } = useFavorites();
 
-  // Navigation Helper
   const navigate = (view: View) => {
     setCurrentView(view);
-    setSidebarOpen(false); // Close sidebar on mobile navigation
+    setSidebarOpen(false);
   };
+
+  const filteredAssets = useMemo(() => {
+    return RECENT_ASSETS.filter((a) => {
+      const matchesSearch = a.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || a.category === selectedCategory;
+      
+      if (currentView === 'favorites') return matchesSearch && isFavorite(a.id);
+      if (currentView === 'components') return matchesSearch && matchesCategory;
+      return matchesSearch;
+    });
+  }, [currentView, searchQuery, selectedCategory, favorites]);
 
   const SidebarItem = ({ 
     icon: Icon, 
@@ -127,7 +150,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       
-      <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} onLogoClick={() => navigate('home')} />
+      <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} onLogoClick={() => navigate('home')} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="flex-1 flex relative overflow-hidden">
         
@@ -146,105 +169,58 @@ const App: React.FC = () => {
           
           {/* HOME VIEW */}
           {currentView === 'home' && (
-            <div className="space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-foreground">RotnemCode Library</h1>
-                  <p className="text-muted-foreground mt-1">Organize, visualize and manage your Elementor assets in one place.</p>
-                </div>
-                <Button onClick={() => navigate('upload')} className="shadow-lg shadow-primary/20">
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Upload
-                </Button>
-              </div>
+            <Home recent={RECENT_ASSETS} onNavigate={(v) => navigate(v)} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
+          )}
 
-              {/* Quick Stats / Filter Placeholder (Visual only) */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {['Templates', 'Sections', 'Snippets', 'Favorites'].map((stat) => (
-                  <Card key={stat} className="p-4 hover:border-primary/50 cursor-pointer transition-colors flex items-center justify-between group">
-                    <span className="font-medium">{stat}</span>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                  </Card>
-                ))}
-              </div>
+          {/* TEMPLATES VIEW */}
+          {currentView === 'templates' && (
+            <ListView 
+              title="Templates"
+              items={filteredAssets.filter(asset => asset.type === 'Template')}
+              onAdd={() => navigate('upload')}
+              emptyMessage={searchQuery ? 'Nenhum template encontrado.' : 'Nenhum template disponível no momento.'}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFavorite}
+            />
+          )}
 
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold tracking-tight">Recent Additions</h2>
-                  <Button variant="ghost" size="sm" className="text-primary" onClick={() => navigate('templates')}>View All</Button>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {RECENT_ASSETS.map((asset) => (
-                    <AssetCard key={asset.id} item={asset} />
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* SECTIONS VIEW */}
+          {currentView === 'sections' && (
+            <ListView 
+              title="Sections"
+              items={filteredAssets.filter(asset => asset.type === 'Section')}
+              onAdd={() => navigate('upload')}
+              emptyMessage={searchQuery ? 'Nenhuma section encontrada.' : 'Nenhuma section disponível no momento.'}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFavorite}
+            />
           )}
 
           {/* UPLOAD CENTER VIEW */}
-          {currentView === 'upload' && (
-            <div className="animate-in slide-in-from-bottom-4 duration-500">
-              <UploadForm />
-            </div>
+          {currentView === 'upload' && <UploadView />}
+
+          {/* COMPONENTS VIEW */}
+          {currentView === 'components' && (
+            <ComponentsView 
+              items={filteredAssets}
+              onAdd={() => navigate('upload')}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFavorite}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
           )}
 
-          {/* GENERIC CATEGORY VIEWS (Placeholder Logic) */}
-          {['templates', 'sections', 'snippets-css', 'snippets-js', 'html-blocks', 'favorites'].includes(currentView) && (
-            <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
-              <div className="flex items-center justify-between">
-                 <h1 className="text-2xl font-bold capitalize">{currentView.replace('-', ' ')}</h1>
-                 <Button variant="outline" onClick={() => navigate('upload')}>
-                    <Plus className="h-4 w-4 mr-2" /> Add New
-                 </Button>
-              </div>
-              
-              {/* Filter Placeholder */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-2">
-                 <Badge variant="default" className="cursor-pointer">All</Badge>
-                 <Badge variant="secondary" className="cursor-pointer bg-background border">Pro</Badge>
-                 <Badge variant="secondary" className="cursor-pointer bg-background border">Free</Badge>
-                 <Badge variant="secondary" className="cursor-pointer bg-background border">Archived</Badge>
-              </div>
-
-              {/* Grid of filtered items */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {RECENT_ASSETS
-                  .filter(a => {
-                     if (currentView === 'favorites') return true; // Mock favorites
-                     if (currentView === 'templates') return a.type === 'Template';
-                     if (currentView === 'sections') return a.type === 'Section';
-                     if (currentView === 'snippets-css') return a.type === 'CSS';
-                     if (currentView === 'snippets-js') return a.type === 'JS';
-                     if (currentView === 'html-blocks') return a.type === 'HTML';
-                     return true;
-                  })
-                  .map((asset) => (
-                    <AssetCard key={asset.id} item={asset} />
-                  ))}
-                  
-                  {/* Empty State Mock */}
-                  {RECENT_ASSETS.filter(a => {
-                     if (currentView === 'favorites') return true;
-                     if (currentView === 'templates') return a.type === 'Template';
-                     if (currentView === 'sections') return a.type === 'Section';
-                     if (currentView === 'snippets-css') return a.type === 'CSS';
-                     if (currentView === 'snippets-js') return a.type === 'JS';
-                     if (currentView === 'html-blocks') return a.type === 'HTML';
-                     return true;
-                  }).length === 0 && (
-                    <div className="col-span-full py-20 text-center">
-                      <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
-                        <Laptop className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                      <h3 className="text-lg font-medium">No assets found</h3>
-                      <p className="text-muted-foreground mt-1">Upload your first {currentView.replace('-', ' ')} to get started.</p>
-                      <Button className="mt-4" onClick={() => navigate('upload')}>Upload Now</Button>
-                    </div>
-                  )}
-              </div>
-            </div>
+          {/* FAVORITES VIEW */}
+          {currentView === 'favorites' && (
+            <ListView 
+              title="Favoritos"
+              items={filteredAssets}
+              onAdd={() => navigate('upload')}
+              emptyMessage={searchQuery ? 'Nenhum favorito encontrado.' : 'Adicione seus componentes favoritos para acesso rápido.'}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFavorite}
+            />
           )}
 
            {/* SETTINGS VIEW (Placeholder) */}

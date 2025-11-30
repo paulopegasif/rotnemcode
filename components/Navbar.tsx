@@ -40,7 +40,7 @@ const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant
     );
 };
 
-export function Navbar({ onToggleSidebar, sidebarOpen, onLogoClick }: { onToggleSidebar: () => void; sidebarOpen: boolean; onLogoClick: () => void; }) {
+export function Navbar({ onToggleSidebar, sidebarOpen, onLogoClick, searchQuery, onSearchChange }: { onToggleSidebar: () => void; sidebarOpen: boolean; onLogoClick: () => void; searchQuery: string; onSearchChange: (q: string) => void; }) {
   const { isDark, toggle } = useTheme();
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -68,6 +68,8 @@ export function Navbar({ onToggleSidebar, sidebarOpen, onLogoClick }: { onToggle
               placeholder="Search templates, snippets..." 
               className="w-full pl-9 bg-muted/50 border-transparent focus:bg-background focus:border-input transition-all"
               aria-label="Buscar na biblioteca"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
         </div>
