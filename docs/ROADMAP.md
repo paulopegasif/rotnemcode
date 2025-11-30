@@ -6,16 +6,17 @@
 
 ## 📊 Visão Geral das Fases
 
-| Fase | Foco | Duração Estimada | Status |
-|------|------|------------------|--------|
-| Fase 1 | Fundação (Tooling & Components) | 1-2 dias | 🔜 Próxima |
-| Fase 2 | Navegação & Estado | 1 dia | ⏳ Pendente |
-| Fase 3 | UX Avançado | 1-2 dias | ⏳ Pendente |
-| Fase 4 | Qualidade & Testes | 1 dia | ⏳ Pendente |
-| Fase 5 | Performance & Scale | 1-2 dias | ⏳ Pendente |
-| Fase 6 | Deploy & Monitoramento | 1 dia | ⏳ Pendente |
+| Fase | Foco | Duração Estimada | Duração Real | Status |
+|------|------|------------------|--------------|--------|
+| Fase 1 | Fundação (Tooling & Components) | 1-2 dias | ~2h | ✅ Completa (29/11/25) |
+| Fase 2 | Navegação & Estado | 1 dia | ~2h | ✅ Completa (29/11/25) |
+| Fase 3 | UX Avançado | 1-2 dias | - | 🔜 Próxima |
+| Fase 4 | Qualidade & Testes | 1 dia | - | ⏳ Pendente |
+| Fase 5 | Performance & Scale | 1-2 dias | - | ⏳ Pendente |
+| Fase 6 | Deploy & Monitoramento | 1 dia | - | ⏳ Pendente |
 
-**Total Estimado:** 6-9 dias de desenvolvimento
+**Total Estimado:** 6-9 dias de desenvolvimento  
+**Progresso:** 2/6 fases (33%) | ~4h de desenvolvimento
 
 ---
 
@@ -124,14 +125,16 @@
     - Generic components
 
 ### Critérios de Aceitação Fase 1
-- [ ] Tailwind compilado via PostCSS (bundle < 50KB gzipped)
-- [ ] Todos os componentes inline extraídos para `components/ui/`
-- [ ] CVA configurado e funcionando
-- [ ] ESLint 0 errors, 0 warnings
-- [ ] Prettier formatando 100% do código
-- [ ] TypeScript strict sem erros
-- [ ] Pre-commit hooks rodando lint + format
-- [ ] IntelliSense Tailwind funcionando no VSCode
+- [x] Tailwind compilado via PostCSS (bundle < 50KB gzipped)
+- [x] Todos os componentes inline extraídos para `components/ui/`
+- [x] CVA configurado e funcionando
+- [x] ESLint 0 errors, 0 warnings
+- [x] Prettier formatando 100% do código
+- [x] TypeScript strict sem erros
+- [x] Pre-commit hooks rodando lint + format
+- [x] IntelliSense Tailwind funcionando no VSCode
+
+**Status:** ✅ COMPLETA - 29/11/2025
 
 ---
 
@@ -189,12 +192,22 @@
   - Configurar tema dark/light sync
 
 ### Critérios de Aceitação Fase 2
-- [ ] URLs refletindo estado da aplicação
-- [ ] Navegação com back/forward do browser
-- [ ] Deep linking funcionando (compartilhar link direto)
-- [ ] Prop drilling eliminado (< 3 níveis)
-- [ ] Toast em todas as ações do usuário
-- [ ] Breadcrumbs nas páginas internas
+- [x] URLs refletindo estado da aplicação
+- [x] Navegação com back/forward do browser
+- [x] Deep linking funcionando (compartilhar link direto)
+- [x] Prop drilling eliminado (< 3 níveis, na verdade 1 nível via hooks)
+- [x] Toast em todas as ações do usuário
+- [x] Breadcrumbs nas páginas internas
+
+**Status:** ✅ COMPLETA - 29/11/2025
+
+**Resultados Alcançados:**
+- 5 novos arquivos criados (Router, Layout, Breadcrumbs, NotFound, useAppStore)
+- 11 componentes refatorados
+- ~15 props eliminadas (prop drilling zerado)
+- 3 dependências adicionadas (react-router-dom, zustand, sonner)
+- 0 erros de linting
+- 531 inserções, 182 deleções
 
 ---
 
