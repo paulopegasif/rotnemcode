@@ -44,11 +44,11 @@ export function Sidebar({ isOpen, onClose: _onClose }: { isOpen: boolean; onClos
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 left-0 z-30 w-64 transform bg-background border-r transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:h-[calc(100vh-3.5rem)]',
+        'fixed inset-y-0 left-0 z-30 w-64 transform bg-background border-r transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:flex-shrink-0',
         isOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'
       )}
     >
-      <div className="h-full flex flex-col py-4">
+      <div className="h-full flex flex-col py-4 overflow-y-auto">
         <div className="px-3 py-2 space-y-1">
           <p className="px-4 text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
             Library

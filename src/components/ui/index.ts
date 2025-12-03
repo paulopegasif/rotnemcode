@@ -11,3 +11,14 @@ export type { BadgeProps } from './badge';
 
 export { Textarea } from './textarea';
 export type { TextareaProps } from './textarea';
+
+export {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from './dialog';

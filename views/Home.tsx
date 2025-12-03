@@ -1,5 +1,4 @@
 import { ChevronRight, Plus } from 'lucide-react';
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { RECENT_ASSETS } from '../App';

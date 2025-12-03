@@ -5,10 +5,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RECENT_ASSETS } from '../App';
 import { AssetCard, ComponentCategory } from '../components/AssetCard';
 import { EmptyState } from '../components/EmptyState';
+import { Pagination } from '../components/Pagination';
 import { useAppStore } from '../store/useAppStore';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+
+const ITEMS_PER_PAGE = 9;
 
 const CATEGORY_LABELS: Record<ComponentCategory | 'all', string> = {
   all: 'Todos',
@@ -83,12 +85,24 @@ export function ComponentsView() {
     setSelectedCategories(new Set());
   };
 
+  const [currentPage, setCurrentPage] = React.useState(1);
+
   const filteredItems = React.useMemo(() => {
     if (selectedCategories.size === 0) return items;
     return items.filter(
       (item) => item.category && selectedCategories.has(item.category as ComponentCategory)
     );
   }, [items, selectedCategories]);
+
+  // Reset page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategories]);
+
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -99,14 +113,17 @@ export function ComponentsView() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
-        <button onClick={clearCategories} aria-label="Limpar filtros">
-          <Badge
-            variant={selectedCategories.size === 0 ? 'default' : 'secondary'}
-            className={selectedCategories.size > 0 ? 'bg-background border' : ''}
-          >
-            {CATEGORY_LABELS.all} {selectedCategories.size > 0 && `(${selectedCategories.size})`}
-          </Badge>
+      <div className="flex items-center gap-2 flex-wrap">
+        <button
+          onClick={clearCategories}
+          aria-label="Limpar filtros"
+          className={`px-4 py-2 rounded-full border text-sm font-semibold transition-colors ${
+            selectedCategories.size === 0
+              ? 'bg-primary text-primary-foreground border-transparent'
+              : 'bg-background text-foreground hover:bg-accent'
+          }`}
+        >
+          {CATEGORY_LABELS.all} {selectedCategories.size > 0 && `(${selectedCategories.size})`}
         </button>
         {(Object.keys(CATEGORY_LABELS) as Array<ComponentCategory | 'all'>)
           .filter((key) => key !== 'all')
@@ -116,21 +133,19 @@ export function ComponentsView() {
               onClick={() => toggleCategory(cat as ComponentCategory)}
               aria-label={`Filtrar por ${CATEGORY_LABELS[cat]}`}
               aria-pressed={selectedCategories.has(cat as ComponentCategory)}
+              className={`px-4 py-2 rounded-full border text-sm font-semibold transition-colors ${
+                selectedCategories.has(cat as ComponentCategory)
+                  ? 'bg-primary text-primary-foreground border-transparent'
+                  : 'bg-background text-foreground hover:bg-accent'
+              }`}
             >
-              <Badge
-                variant={selectedCategories.has(cat as ComponentCategory) ? 'default' : 'secondary'}
-                className={
-                  !selectedCategories.has(cat as ComponentCategory) ? 'bg-background border' : ''
-                }
-              >
-                {CATEGORY_LABELS[cat]}
-              </Badge>
+              {CATEGORY_LABELS[cat]}
             </button>
           ))}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredItems.map((asset) => (
+        {paginatedItems.map((asset) => (
           <AssetCard
             key={asset.id}
             item={asset}
@@ -153,6 +168,15 @@ export function ComponentsView() {
           />
         )}
       </div>
+      {filteredItems.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          itemsPerPage={ITEMS_PER_PAGE}
+          totalItems={filteredItems.length}
+        />
+      )}
     </div>
   );
 }

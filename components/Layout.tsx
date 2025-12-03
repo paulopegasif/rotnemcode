@@ -16,9 +16,9 @@ export function Layout() {
     <div className="min-h-screen bg-background text-foreground">
       <Toaster theme={isDark ? 'dark' : 'light'} richColors position="top-right" />
       <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-      <div className="flex">
+      <div className="flex h-[calc(100vh-3.5rem)]">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 md:ml-64 p-6">
+        <main className="flex-1 overflow-y-auto p-6">
           <Breadcrumbs />
           <Outlet />
         </main>

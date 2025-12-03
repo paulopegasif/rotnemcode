@@ -12,6 +12,8 @@ import {
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+import { CodePreviewDialog } from './CodePreviewDialog';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -194,15 +196,9 @@ export const AssetCard: React.FC<{
             </Button>
           </div>
         </div>
-        {showPreview && item.code && (
-          <pre
-            className="mt-4 p-3 rounded-md bg-slate-900 text-slate-100 text-xs overflow-auto max-h-48"
-            aria-label="Pré-visualização do código"
-          >
-            <code>{item.code}</code>
-          </pre>
-        )}
       </div>
+
+      <CodePreviewDialog item={item} open={showPreview} onOpenChange={setShowPreview} />
     </Card>
   );
 };
