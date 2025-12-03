@@ -6,16 +6,24 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  // Evitar falhas silenciosas; logar instruções em desenvolvimento
   console.warn(
     '[Supabase] Variáveis VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY não configuradas. ' +
-      'Crie um arquivo .env e defina as variáveis conforme .env.example.'
+      'Crie um arquivo .env na raiz do projeto e defina as variáveis conforme .env.example.\n' +
+      'Exemplo:\n' +
+      'VITE_SUPABASE_URL=https://seu-projeto.supabase.co\n' +
+      'VITE_SUPABASE_ANON_KEY=sua-chave-anon'
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+// Usar valores dummy para evitar crash quando variáveis não estão configuradas
+// Isso permite que o app rode em modo desenvolvimento sem backend
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  }
+);
