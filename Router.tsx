@@ -1,13 +1,19 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import { Layout } from './components/Layout';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFound';
 import { ComponentsView } from './views/ComponentsView';
 import { Home } from './views/Home';
 import { ListView } from './views/ListView';
+import { LoginView } from './views/LoginView';
 import { UploadView } from './views/Upload';
 
 const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <LoginView />,
+  },
   {
     path: '/',
     element: <Layout />,
@@ -34,17 +40,29 @@ const router = createBrowserRouter([
       },
       {
         path: 'upload',
-        element: <UploadView />,
+        element: (
+          <ProtectedRoute>
+            <UploadView />
+          </ProtectedRoute>
+        ),
         handle: { crumb: 'Upload' },
       },
       {
         path: 'favorites',
-        element: <ListView type="favorites" />,
+        element: (
+          <ProtectedRoute>
+            <ListView type="favorites" />
+          </ProtectedRoute>
+        ),
         handle: { crumb: 'Favorites' },
       },
       {
         path: 'settings',
-        element: <div className="p-6">Settings page (em desenvolvimento)</div>,
+        element: (
+          <ProtectedRoute>
+            <div className="p-6">Settings page (em desenvolvimento)</div>
+          </ProtectedRoute>
+        ),
         handle: { crumb: 'Settings' },
       },
     ],

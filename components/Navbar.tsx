@@ -1,7 +1,8 @@
-import { Bell, Layers, Menu, Moon, Search, Sun, X } from 'lucide-react';
+import { Bell, Layers, LogIn, LogOut, Menu, Moon, Search, Sun, User, X } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../contexts/AuthContext';
 import { useAppStore } from '../store/useAppStore';
 
 import { Button } from '@/components/ui/button';
@@ -15,10 +16,17 @@ export function Navbar({
   sidebarOpen: boolean;
 }) {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const isDark = useAppStore((state) => state.isDark);
   const toggleTheme = useAppStore((state) => state.toggleTheme);
   const searchQuery = useAppStore((state) => state.searchQuery);
   const setSearchQuery = useAppStore((state) => state.setSearchQuery);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center px-4 md:px-6 gap-4">
@@ -71,10 +79,22 @@ export function Navbar({
             <Bell className="h-5 w-5" />
             <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background"></span>
           </Button>
-          <div
-            className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 border-2 border-background"
-            aria-hidden
-          />
+          {user ? (
+            <>
+              <div className="hidden sm:flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">{user.email}</span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
+              <LogIn className="h-4 w-4 mr-2" />
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </header>
