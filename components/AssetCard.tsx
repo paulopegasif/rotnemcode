@@ -56,6 +56,12 @@ export const AssetCard: React.FC<{
 }> = ({ item, isFavorite = false, onToggleFavorite, highlight }) => {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isLocalFavorite, setIsLocalFavorite] = useState(isFavorite);
+
+  // Sincronizar estado local com prop
+  React.useEffect(() => {
+    setIsLocalFavorite(isFavorite);
+  }, [isFavorite]);
   const getIcon = (type: AssetType) => {
     switch (type) {
       case 'Template':
@@ -86,16 +92,9 @@ export const AssetCard: React.FC<{
 
   const handleToggleFavorite = () => {
     if (!onToggleFavorite) return;
+    // Atualizar estado local imediatamente para feedback visual instantâneo
+    setIsLocalFavorite(!isLocalFavorite);
     onToggleFavorite(item.id);
-    if (isFavorite) {
-      toast('Removido dos favoritos', {
-        description: `${item.title} foi removido da lista de favoritos.`,
-      });
-    } else {
-      toast.success('Adicionado aos favoritos!', {
-        description: `${item.title} foi adicionado aos favoritos.`,
-      });
-    }
   };
 
   const renderTitle = () => {
@@ -126,15 +125,7 @@ export const AssetCard: React.FC<{
         <div className="scale-100 group-hover:scale-110 transition-transform duration-500">
           {getIcon(item.type)}
         </div>
-        <div className="absolute top-2 right-2 flex gap-2">
-          {item.status && (
-            <Badge
-              variant={item.status === 'Pro' ? 'default' : 'secondary'}
-              className="bg-background/80 backdrop-blur-sm shadow-sm"
-            >
-              {item.status}
-            </Badge>
-          )}
+        <div className="absolute top-2 right-2">
           <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm shadow-sm">
             {item.type}
           </Badge>
@@ -171,25 +162,24 @@ export const AssetCard: React.FC<{
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9"
-              onClick={handleToggleFavorite}
-              aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-            >
-              {isFavorite ? (
-                <svg className="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              ) : (
-                <svg
-                  className="h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M20.8 8.5c0 3.6-3.2 6.6-8.8 11.3-5.6-4.7-8.8-7.7-8.8-11.3C3.2 6 5.2 4 7.7 4c1.8 0 3.5.9 4.3 2.3C12.8 4.9 14.5 4 16.3 4c2.5 0 4.5 2 4.5 4.5z" />
-                </svg>
+              className={cn(
+                'h-9 w-9 transition-colors',
+                isLocalFavorite && 'text-red-500 hover:text-red-600'
               )}
+              onClick={handleToggleFavorite}
+              aria-label={isLocalFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+            >
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill={isLocalFavorite ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
             </Button>
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <MoreVertical className="h-4 w-4 text-muted-foreground" />
