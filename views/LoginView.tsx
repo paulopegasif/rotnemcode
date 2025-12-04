@@ -22,14 +22,28 @@ export function LoginView() {
     setLoading(true);
 
     try {
+      if (!email.trim() || !password.trim()) {
+        toast.error('Email e senha são obrigatórios');
+        setLoading(false);
+        return;
+      }
+
       const { error } = isSignUp ? await signUp(email, password) : await signIn(email, password);
 
       if (error) {
-        toast.error(error.message);
+        console.error('Auth error:', error);
+        const errorMessage =
+          error.message === 'Email link is invalid or has expired.'
+            ? 'Link de confirmação expirado. Tente novamente.'
+            : error.message;
+        toast.error(errorMessage);
       } else {
         toast.success(isSignUp ? 'Conta criada com sucesso!' : 'Login realizado!');
         navigate('/');
       }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      toast.error('Erro inesperado. Tente novamente.');
     } finally {
       setLoading(false);
     }
