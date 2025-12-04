@@ -7,6 +7,7 @@ import { ComponentsView } from './views/ComponentsView';
 import { Home } from './views/Home';
 import { ListView } from './views/ListView';
 import { LoginView } from './views/LoginView';
+import { MyAssetsView } from './views/MyAssetsView';
 import { UploadView } from './views/Upload';
 
 const router = createBrowserRouter([
@@ -46,6 +47,15 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         handle: { crumb: 'Upload' },
+      },
+      {
+        path: 'my-assets',
+        element: (
+          <ProtectedRoute>
+            <MyAssetsView />
+          </ProtectedRoute>
+        ),
+        handle: { crumb: 'My Assets' },
       },
       {
         path: 'favorites',

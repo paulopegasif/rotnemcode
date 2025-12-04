@@ -1,4 +1,4 @@
-import { FileCode, Heart, Layers, Layout, Settings, UploadCloud } from 'lucide-react';
+import { FileCode, FolderOpen, Heart, Layers, Layout, Settings, UploadCloud } from 'lucide-react';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
@@ -59,6 +59,7 @@ export function Sidebar({ isOpen, onClose: _onClose }: { isOpen: boolean; onClos
         </div>
         <div className="my-4 border-t mx-4" />
         <div className="px-3 space-y-1">
+          <SidebarItem icon={FolderOpen} label="My Assets" to="/my-assets" />
           <SidebarItem icon={UploadCloud} label="Upload Center" to="/upload" />
           <SidebarItem icon={Heart} label="Favorites" to="/favorites" />
         </div>
