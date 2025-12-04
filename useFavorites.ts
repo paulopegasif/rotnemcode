@@ -4,7 +4,11 @@ export function useFavorites() {
   const [favorites, setFavorites] = useState<Set<string>>(() => {
     if (typeof window === 'undefined') return new Set();
     const raw = localStorage.getItem('rc-favorites');
-    try { return new Set(raw ? JSON.parse(raw) as string[] : []); } catch { return new Set(); }
+    try {
+      return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+    } catch {
+      return new Set();
+    }
   });
 
   useEffect(() => {
@@ -12,9 +16,10 @@ export function useFavorites() {
   }, [favorites]);
 
   const toggleFavorite = (id: string) => {
-    setFavorites(prev => {
+    setFavorites((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };

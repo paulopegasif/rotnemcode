@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client';
 
 import { Router } from './Router';
 import { AuthProvider } from './contexts/AuthContext';
+import './lib/supabaseTest'; // Expose testSupabaseConnection() to window
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

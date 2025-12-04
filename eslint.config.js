@@ -8,6 +8,9 @@ import importPlugin from 'eslint-plugin-import';
 import prettierConfig from 'eslint-config-prettier';
 
 export default [
+  {
+    ignores: ['node_modules/', 'dist/', 'build/', '.next/', 'coverage/', 'supabase/functions/'],
+  },
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],

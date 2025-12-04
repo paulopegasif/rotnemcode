@@ -7,7 +7,8 @@ export function useTheme() {
     const stored = typeof window !== 'undefined' ? localStorage.getItem('rc-theme') : null;
     if (stored === 'light' || stored === 'dark') return stored;
     if (typeof window !== 'undefined') {
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const prefersDark =
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       return prefersDark ? 'dark' : 'light';
     }
     return 'light';
