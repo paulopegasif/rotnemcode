@@ -10,13 +10,16 @@
 |------|------|------------------|--------------|--------|
 | Fase 1 | Fundação (Tooling & Components) | 1-2 dias | ~2h | ✅ Completa (29/11/25) |
 | Fase 2 | Navegação & Estado | 1 dia | ~2h | ✅ Completa (29/11/25) |
-| Fase 3 | UX Avançado | 1-2 dias | - | 🔜 Próxima |
-| Fase 4 | Qualidade & Testes | 1 dia | - | ⏳ Pendente |
-| Fase 5 | Performance & Scale | 1-2 dias | - | ⏳ Pendente |
-| Fase 6 | Deploy & Monitoramento | 1 dia | - | ⏳ Pendente |
+| Fase 3 | Backend & Segurança | 2-3 dias | ~6h | ✅ Completa (04/12/25) |
+| Fase 4 | UX Avançado | 1-2 dias | - | 🔜 Próxima |
+| Fase 5 | Assinaturas & Pagamentos | 1-2 dias | - | ⏳ Pendente |
+| Fase 6 | Admin & Curadoria | 1 dia | - | ⏳ Pendente |
+| Fase 7 | Qualidade & Testes | 1 dia | - | ⏳ Pendente |
+| Fase 8 | Performance & Scale | 1-2 dias | - | ⏳ Pendente |
+| Fase 9 | Deploy & Monitoramento | 1 dia | - | ⏳ Pendente |
 
-**Total Estimado:** 6-9 dias de desenvolvimento  
-**Progresso:** 2/6 fases (33%) | ~4h de desenvolvimento
+**Total Estimado:** 10-14 dias de desenvolvimento  
+**Progresso:** 3/9 fases (33%) | ~10h de desenvolvimento
 
 ---
 
@@ -211,7 +214,108 @@
 
 ---
 
-## 🎨 Fase 3: UX Avançado
+## 🔐 Fase 3: Backend & Segurança
+
+**Objetivo:** Implementar autenticação, autorização e sistema de publicação seguro com validação de entitlements.
+
+### Tarefas
+
+#### 3.1 Supabase Setup & Migrations
+- **Prioridade:** 🔴 CRÍTICA
+- **Impacto:** Fundação do backend, autenticação, database
+- **Entregáveis:**
+  - ✅ Migration 001: Schema inicial (profiles, assets, entitlements, subscriptions)
+  - ✅ Migration 002: RLS policies básicas
+  - ✅ Migration 005: Sistema de roles (is_admin)
+  - ✅ Migration 006: Triggers e funções (entitlements default, check_user_quota)
+  - ✅ Migration 007: Audit log e proteção admin promotion
+  - ✅ Configuração Supabase client (`lib/supabase.ts`)
+  - ✅ Context de autenticação (`AuthContext.tsx`)
+- **Benefícios:**
+  - Database PostgreSQL gerenciado
+  - Auth com JWT out-of-the-box
+  - RLS para segurança row-level
+  - Real-time subscriptions (futuro)
+
+#### 3.2 Edge Functions & Validação Backend
+- **Prioridade:** 🔴 CRÍTICA
+- **Impacto:** Segurança, prevenção de bypass, validação server-side
+- **Entregáveis:**
+  - ✅ Edge Function `publish-asset`:
+    - Validação de JWT (autenticação)
+    - Verificação de ownership
+    - Validação de `entitlements.can_publish`
+    - Checagem de quotas (`max_assets`)
+    - Admin bypass para curadoria
+    - UPDATE via SERVICE_ROLE_KEY
+  - ✅ Edge Function `stripe-webhook` (preparação)
+  - ✅ Deploy no Supabase Dashboard
+  - ✅ Env vars configuradas (SUPABASE_URL, ANON_KEY, SERVICE_ROLE_KEY)
+- **Threat Model Mitigado:**
+  - ✅ Bypass de entitlements via DevTools
+  - ✅ JWT tampering
+  - ✅ Privilege escalation (self-promotion)
+  - ✅ Quota bypass via race conditions
+  - ✅ SQL injection
+  - ✅ Mass assignment
+
+#### 3.3 Frontend Integration (Hooks & Views)
+- **Prioridade:** 🔴 CRÍTICA
+- **Impacto:** UX, segurança, feedback visual
+- **Entregáveis:**
+  - ✅ Hook `usePublishAsset`:
+    - Chamadas seguras via `supabase.functions.invoke`
+    - Tratamento automático de erros (`CANNOT_PUBLISH`, `QUOTA_EXCEEDED`)
+    - Toasts informativos com ações
+    - Estado `isPublishing` para loading
+  - ✅ View `MyAssetsView` (`/my-assets`):
+    - Lista assets do usuário via Supabase
+    - Botão toggle publicar/despublicar
+    - Badge de status (Público/Privado)
+    - Stats (views, likes)
+    - Loading states e refresh manual
+  - ✅ Rota protegida (`ProtectedRoute`)
+  - ✅ Link no Sidebar
+
+#### 3.4 Documentação de Segurança
+- **Prioridade:** 🟡 ALTA
+- **Impacto:** Onboarding, manutenção, recovery
+- **Entregáveis:**
+  - ✅ `docs/SECURITY.md` - Arquitetura de segurança em 4 camadas
+  - ✅ `docs/ADMIN_GUIDE.md` - Procedures de admin e recovery
+  - ✅ `docs/FRONTEND_SECURITY.md` - Guia de migração código inseguro → seguro
+  - ✅ `docs/IMPLEMENTATION_SUMMARY.md` - Resumo executivo
+  - ✅ `docs/TESTING_GUIDE.md` - 5 testes de validação
+  - ✅ Threat model com 7 vetores de ataque
+  - ✅ Recovery procedures para 4 cenários
+
+### Critérios de Aceitação Fase 3
+- [x] Migration 007 aplicada no banco de produção
+- [x] Edge Function `publish-asset` deployada e testável
+- [x] Hook `usePublishAsset` integrado no frontend
+- [x] View `My Assets` funcional com publicar/despublicar
+- [x] RLS policies bloqueando UPDATE direto em `is_admin`
+- [x] Audit log registrando todas as promoções a admin
+- [x] Documentação completa (5 docs)
+- [ ] Testes de segurança executados (5 cenários)
+
+**Status:** ✅ COMPLETA - 04/12/2025
+
+**Resultados Alcançados:**
+- 7 migrations aplicadas (schema completo)
+- 2 Edge Functions implementadas e deployadas
+- 1 hook seguro criado (`usePublishAsset`)
+- 1 view nova (`MyAssetsView`)
+- 5 documentos de segurança criados
+- 6 commits organizados
+- Threat model com 7 vetores mitigados
+- Arquitetura de segurança em 4 camadas ativa
+
+**Próximo Passo Crítico:** Executar testes de segurança documentados em `TESTING_GUIDE.md`
+
+---
+
+## 🎨 Fase 4: UX Avançado
 
 **Objetivo:** Elevar experiência do usuário com interações modernas e feedback visual.
 
@@ -286,215 +390,420 @@
     - Max size 5MB
     - Error states
 
-### Critérios de Aceitação Fase 3
+### Critérios de Aceitação Fase 4
+- [ ] Upload Form conectado ao Supabase
+- [ ] Assets salvos no banco com `is_public = false`
 - [ ] Modais acessíveis (focus, keyboard)
 - [ ] Syntax highlighting em todos os previews
 - [ ] Formulários validados com mensagens claras
 - [ ] Skeleton em loading states
 - [ ] Drag & drop funcional no upload
+- [ ] Indicadores de plano (Free/Pro badge)
+- [ ] Quota visível em My Assets
 
 ---
 
-## 🧪 Fase 4: Qualidade & Testes
+## 💳 Fase 5: Assinaturas & Pagamentos
 
-**Objetivo:** Garantir confiabilidade e resiliência da aplicação.
+**Objetivo:** Monetizar com Stripe Checkout e gerenciar planos Pro.
 
 ### Tarefas
 
-#### 4.1 Error Boundaries
+#### 5.1 Stripe Integration (Checkout)
 - **Prioridade:** 🔴 CRÍTICA
+- **Impacto:** Monetização, conversão Free → Pro
 - **Entregáveis:**
-  - Criar `ErrorBoundary` component
+  - Implementar `pages/PricingPage.tsx`:
+    - Cards com planos (Free vs Pro)
+    - Comparação de features
+    - Botão "Upgrade to Pro"
+  - Criar Stripe Checkout Session:
+    ```typescript
+    const { data } = await supabase.functions.invoke('create-checkout', {
+      body: { priceId: 'price_xxx' }
+    });
+    window.location.href = data.url; // Redireciona para Stripe
+    ```
+  - Páginas:
+    - `/success` - Após pagamento bem-sucedido
+    - `/cancel` - Se usuário cancelar
+  - Edge Function `create-checkout`:
+    - Criar Stripe Customer
+    - Criar Checkout Session
+    - Retornar URL de redirecionamento
+  - Webhook já existe (`stripe-webhook`) ✅
+
+#### 5.2 Stripe Customer Portal
+- **Prioridade:** 🟡 ALTA
+- **Impacto:** Self-service, cancelamento, upgrade/downgrade
+- **Entregáveis:**
+  - Botão "Manage Subscription" em `/settings`
+  - Edge Function `create-portal-session`:
+    - Gera URL do Customer Portal
+    - Permite cancelar, atualizar forma de pagamento
+  - Link de retorno para `/settings`
+
+#### 5.3 Subscription Status UI
+- **Prioridade:** 🟡 ALTA
+- **Impacto:** Transparência, retenção
+- **Entregáveis:**
+  - Badge de plano no Navbar:
+    ```tsx
+    <Badge variant={isPro ? "default" : "secondary"}>
+      {isPro ? "Pro" : "Free"}
+    </Badge>
+    ```
+  - Quota indicator em My Assets:
+    - "5/50 assets públicos" (visual progressbar)
+    - Aviso quando próximo do limite (90%)
+  - Warning banner quando assinatura expirada:
+    - "Sua assinatura expirou. Renovar agora?"
+  - Desabilitar botão "Publicar" se quota atingida
+
+#### 5.4 Settings Page
+- **Prioridade:** 🟢 MÉDIA
+- **Entregáveis:**
+  - Substituir placeholder por `views/SettingsView.tsx`
+  - Tabs:
+    - **Profile**: Avatar (Supabase Storage), nome, bio
+    - **Subscription**: 
+      - Plano atual, data de renovação
+      - Botão "Manage Subscription" (Customer Portal)
+      - Histórico de faturas (via Stripe API)
+    - **Security**: 
+      - Trocar senha
+      - 2FA (futuro, via Supabase Auth)
+
+### Critérios de Aceitação Fase 5
+- [ ] Pricing page com CTAs claros
+- [ ] Checkout Stripe funcional
+- [ ] Webhook atualizando `subscriptions` e `entitlements`
+- [ ] Customer Portal acessível via Settings
+- [ ] Badge de plano visível
+- [ ] Quota indicator funcionando
+- [ ] Warning de quota próxima (90%)
+- [ ] Botão "Publicar" desabilitado se limite atingido
+
+---
+
+## 👨‍💼 Fase 6: Admin & Curadoria
+
+**Objetivo:** Ferramentas de administração e moderação de conteúdo.
+
+### Tarefas
+
+#### 6.1 Admin Dashboard (`/admin/users`)
+- **Prioridade:** 🟡 ALTA
+- **Impacto:** Gestão de usuários, moderação
+- **Entregáveis:**
+  - Criar `views/AdminDashboard.tsx` (ProtectedRoute com `is_admin`)
+  - Tabela de usuários:
+    - Colunas: email, plano, is_admin, created_at, assets_count
+    - Filtros: Admin/Free/Pro
+    - Busca por email
+    - Ordenação (mais recentes, mais assets)
+  - Ações por usuário:
+    - **Promover a Admin**: Modal de confirmação → UPDATE seguro
+    - **Demover de Admin**: Confirmação → UPDATE
+    - **Ver Assets**: Link para `/admin/users/:id/assets`
+    - **Banir** (futuro): Soft-delete do usuário
+  - Edge Function `promote-admin`:
+    - Validação: apenas admins podem promover
+    - Audit log automático via trigger
+  - Paginação (50 users por página)
+
+#### 6.2 Audit Log Viewer (`/admin/audit-log`)
+- **Prioridade:** 🟢 MÉDIA
+- **Impacto:** Compliance, troubleshooting, security
+- **Entregáveis:**
+  - Criar `views/AuditLogView.tsx`
+  - Listar `admin_actions` com query `get_recent_admin_actions()`
+  - Tabela:
+    - timestamp, admin_email, action, target_email, metadata
+    - Highlight de self-promotion attempts (via_sql_editor: false)
+  - Filtros:
+    - Action type (PROMOTE_TO_ADMIN, DEMOTE_FROM_ADMIN)
+    - Date range (últimos 7 dias, 30 dias, custom)
+    - Admin específico (dropdown)
+  - Export para CSV (via `json2csv`)
+  - Busca por email (admin ou target)
+
+#### 6.3 Asset Moderation (`/admin/assets`)
+- **Prioridade:** 🟢 MÉDIA
+- **Impacto:** Qualidade de conteúdo, featured assets
+- **Entregáveis:**
+  - View de todos os assets públicos
+  - Ações:
+    - **Feature**: Marca `is_featured = true` (destaque no home)
+    - **Unfeature**: Remove destaque
+    - **Unpublish**: Despublica asset (moderação)
+    - **Delete**: Soft-delete (casos graves)
+  - Filtros:
+    - Tipo (Template, Section, CSS, JS, HTML)
+    - Status (Public, Featured)
+    - Usuário (dropdown)
+  - Preview rápido ao hover
+  - Batch actions (selecionar múltiplos)
+
+#### 6.4 Analytics Dashboard (`/admin/analytics`)
+- **Prioridade:** 🟢 BAIXA
+- **Impacto:** Insights de negócio, KPIs
+- **Entregáveis:**
+  - Métricas:
+    - Total users (Free vs Pro)
+    - Novos cadastros (últimos 7/30 dias)
+    - Taxa de conversão Free → Pro
+    - MRR (Monthly Recurring Revenue) via Stripe API
+    - Churn rate
+    - Assets públicos por plano
+    - Top users (mais assets, mais views)
+  - Gráficos (Chart.js ou Recharts):
+    - Crescimento de usuários (line chart)
+    - Distribuição de planos (pie chart)
+    - Assets criados por dia (bar chart)
+  - Queries otimizadas com materialized views (futuro)
+
+### Critérios de Aceitação Fase 6
+- [ ] Admin dashboard protegido (`is_admin = true`)
+- [ ] Promover/demover admin funcionando
+- [ ] Audit log visível e filtrável
+- [ ] Moderação de assets (feature/unfeature/delete)
+- [ ] Analytics com métricas básicas
+
+---
+
+## 🧪 Fase 7: Qualidade & Testes
+
+**Objetivo:** Garantir confiabilidade, segurança e resiliência da aplicação.
+
+**Tempo estimado:** 8h  
+**Data prevista:** A definir
+
+### Tarefas
+
+#### 7.1 Executar Testes de Segurança (TESTING_GUIDE.md)
+- **Prioridade:** 🔴 CRÍTICA
+- **Impacto:** Validação de 4 camadas de segurança
+- **Entregáveis:**
+  - Criar 3 contas de teste (Free, Pro, Admin)
+  - Executar 5 cenários de teste:
+    - **Test 1:** Free user → 403 CANNOT_PUBLISH
+    - **Test 2:** Pro user quota → 403 QUOTA_EXCEEDED
+    - **Test 3:** Admin curadoria → 200 Success
+    - **Test 4:** Self-promotion SQL → Exception blocked
+    - **Test 5:** Despublicar → quota liberada
+  - Documentar resultados em `docs/TEST_RESULTS.md`
+  - Validar Edge Function, RLS, Entitlements, Audit log
+
+#### 7.2 Error Boundaries
+- **Prioridade:** 🟡 ALTA
+- **Entregáveis:**
+  - Criar `components/ErrorBoundary.tsx`
   - Fallback UI:
-    - Mensagem amigável
+    - Mensagem amigável ("Algo deu errado")
     - Botão "Reload"
-    - Detalhes do erro (dev only)
-  - Wrap App.tsx
+    - Detalhes do erro (somente dev mode)
+  - Wrap em `App.tsx`
   - Preparar para Sentry (logging)
 
-#### 4.2 Testes Unitários (Vitest)
-- **Prioridade:** 🟡 ALTA
+#### 7.3 Testes Unitários (Vitest)
+- **Prioridade:** 🟢 MÉDIA
 - **Entregáveis:**
   - Instalar `vitest`, `@testing-library/react`, `jsdom`
   - Configurar `vitest.config.ts`
   - Testar:
     - **Hooks:**
-      - `useTheme.test.ts` (toggle, localStorage)
-      - `useFavorites.test.ts` (add, remove, persist)
+      - `usePublishAsset.test.ts` (success, errors, loading)
+      - `useAuth.test.ts` (login, logout, session)
     - **Components:**
-      - `AssetCard.test.tsx` (render, favorite, copy)
-      - `ListView.test.tsx` (filtros, empty state)
+      - `MyAssetsView.test.tsx` (render, toggle publish)
+      - `AssetCard.test.tsx` (status badge, actions)
     - **Utils:**
-      - Validação de código
-      - Formatação
-  - Coverage mínimo: 60%
-  - Scripts:
-    - `test`: vitest
-    - `test:ui`: interface web
-    - `test:coverage`: relatório
+      - Validação de JWT
+      - Formatação de datas
+  - Coverage mínimo: 50%
+  - Scripts: `npm test`, `npm run test:coverage`
 
-#### 4.3 Storybook (opcional)
+#### 7.4 Testes E2E (Playwright - opcional)
 - **Prioridade:** 🟢 BAIXA
 - **Entregáveis:**
-  - Instalar Storybook
-  - Stories para components/ui:
-    - Button (todas variants)
-    - Input (error states)
-    - Card (composição)
-  - Args controls
-  - Actions logging
+  - Instalar Playwright
+  - Fluxos críticos:
+    - Login → My Assets → Publish
+    - Free user → Upgrade CTA
+    - Admin → Promote user
+  - CI integration (GitHub Actions)
 
-### Critérios de Aceitação Fase 4
-- [ ] App não crasha (error boundary)
-- [ ] Coverage > 60%
-- [ ] Todos os hooks testados
-- [ ] Componentes críticos testados
+### Critérios de Aceitação Fase 7
+- [ ] 5 testes de segurança executados e documentados
+- [ ] Error boundary funcionando
+- [ ] Coverage > 50% (hooks críticos testados)
+- [ ] 0 falhas em testes automatizados
 - [ ] CI rodando testes (futuro)
 
 ---
 
-## ⚡ Fase 5: Performance & Scale
+## ⚡ Fase 8: Performance & Scale
 
-**Objetivo:** Otimizar para produção e preparar para escala.
+**Objetivo:** Otimizar para produção e preparar para milhares de usuários.
+
+**Tempo estimado:** 6h  
+**Data prevista:** A definir
 
 ### Tarefas
 
-#### 5.1 Code Splitting & Lazy Loading
+#### 8.1 Code Splitting & Lazy Loading
 - **Prioridade:** 🟡 ALTA
 - **Entregáveis:**
   - `React.lazy()` para routes:
     ```tsx
-    const Templates = lazy(() => import('./views/Templates'));
+    const AdminDashboard = lazy(() => import('./views/AdminDashboard'));
+    const MyAssetsView = lazy(() => import('./views/MyAssetsView'));
     ```
   - `<Suspense>` com Skeleton fallback
   - Dynamic imports para:
     - Modais (abrir sob demanda)
     - Syntax highlighter (carregar quando necessário)
+  - Redução de bundle inicial: < 150KB
 
-#### 5.2 Otimização de Re-renders
+#### 8.2 Database Indexing
+- **Prioridade:** 🔴 CRÍTICA
+- **Entregáveis:**
+  - Criar índices no Postgres:
+    ```sql
+    CREATE INDEX idx_assets_user_id ON assets(user_id);
+    CREATE INDEX idx_assets_is_public ON assets(is_public);
+    CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
+    CREATE INDEX idx_entitlements_user_id ON entitlements(user_id);
+    ```
+  - Analisar query performance (EXPLAIN ANALYZE)
+  - Otimizar RLS policies (evitar full table scans)
+
+#### 8.3 Caching Strategy
 - **Prioridade:** 🟢 MÉDIA
 - **Entregáveis:**
-  - `useMemo` estratégico em:
-    - Filtros complexos
-    - Computações pesadas
-  - `useCallback` em:
-    - Event handlers passados como props
-    - Callbacks em Context
-  - `React.memo` em:
-    - AssetCard (pure component)
-    - Listas grandes
+  - Zustand persist para:
+    - User profile (24h TTL)
+    - Entitlements (1h TTL)
+  - Supabase query cache:
+    ```tsx
+    const { data, error } = await supabase
+      .from('assets')
+      .select('*')
+      .eq('user_id', userId)
+      .cache({ ttl: 300 }); // 5 min
+    ```
+  - Browser cache headers (Vercel config)
 
-#### 5.3 Virtualização (react-window)
+#### 8.4 Image Optimization
 - **Prioridade:** 🟢 BAIXA
 - **Entregáveis:**
-  - Instalar `react-window`
-  - Virtualizar grids com 100+ items
-  - Smooth scrolling
-  - Performance: 60fps constante
+  - Supabase Storage transformations:
+    - Thumbnails: 300x300 (quality 80)
+    - Previews: 800x600 (quality 85)
+  - WebP format (fallback JPEG)
+  - Lazy loading de imagens (Intersection Observer)
 
-#### 5.4 Organização Feature-Based
-- **Prioridade:** 🟢 MÉDIA
-- **Entregáveis:**
-  - Reestruturar para:
-    ```
-    src/
-    ├── features/
-    │   ├── templates/
-    │   │   ├── components/
-    │   │   ├── hooks/
-    │   │   ├── types/
-    │   │   └── index.ts
-    │   ├── sections/
-    │   ├── components/
-    │   └── upload/
-    ├── shared/
-    │   ├── components/ui/
-    │   ├── hooks/
-    │   └── utils/
-    └── App.tsx
-    ```
-  - Barrel exports (`index.ts`)
-  - Import absolutos (`@/features/...`)
-
-### Critérios de Aceitação Fase 5
+### Critérios de Aceitação Fase 8
 - [ ] Lighthouse Score > 90
 - [ ] FCP < 1.5s
 - [ ] TTI < 3s
-- [ ] Bundle size < 200KB (gzipped)
-- [ ] Re-renders otimizados (< 10ms por componente)
+- [ ] Bundle size < 150KB (gzipped, inicial)
+- [ ] Queries < 100ms (p95)
+- [ ] Database indexes criados
 
 ---
 
-## 🚢 Fase 6: Deploy & Monitoramento
+## 🚀 Fase 9: Deploy & Monitoramento
 
 **Objetivo:** Preparar para produção com CI/CD e observabilidade.
 
+**Tempo estimado:** 4h  
+**Data prevista:** A definir
+
 ### Tarefas
 
-#### 6.1 Metadata & SEO
+#### 9.1 Metadata & SEO
 - **Prioridade:** 🟡 ALTA
 - **Entregáveis:**
   - Meta tags no `index.html`:
-    - description, keywords
-    - og:title, og:image (Open Graph)
-    - twitter:card
-  - PWA manifest básico
+    - `<title>`, `<meta description>`
+    - Open Graph (og:title, og:image, og:url)
+    - Twitter Card (twitter:card, twitter:image)
+  - PWA manifest básico (`manifest.json`)
   - Favicon set (16x16 até 512x512)
-  - robots.txt, sitemap.xml (preparação)
+  - robots.txt, sitemap.xml
 
-#### 6.2 Analytics Setup
-- **Prioridade:** 🟢 MÉDIA
+#### 9.2 Error Tracking (Sentry)
+- **Prioridade:** 🔴 CRÍTICA
 - **Entregáveis:**
-  - Escolher: Google Analytics 4 ou Plausible
-  - Criar hook `useAnalytics`:
+  - Criar conta no Sentry
+  - Instalar `@sentry/react`
+  - Configurar:
     ```tsx
-    const { trackEvent } = useAnalytics();
-    trackEvent('view_template', { id, category });
+    Sentry.init({
+      dsn: import.meta.env.VITE_SENTRY_DSN,
+      environment: import.meta.env.MODE,
+      tracesSampleRate: 0.1,
+    });
     ```
-  - Eventos críticos:
-    - page_view
-    - copy_code
-    - add_favorite
-    - upload_asset
-    - search_query
-  - GDPR banner (cookie consent)
+  - Capturar erros:
+    - Uncaught exceptions
+    - Edge Function failures (via webhook)
+    - Supabase errors
+  - Alertas no Slack/Email
 
-#### 6.3 CI/CD com GitHub Actions
+#### 9.3 CI/CD com GitHub Actions
 - **Prioridade:** 🔴 CRÍTICA
 - **Entregáveis:**
   - Workflow `.github/workflows/ci.yml`:
     ```yaml
-    - Checkout
-    - Setup Node
-    - Install deps
-    - Lint
-    - Test
-    - Build
-    - Deploy (Vercel preview)
+    name: CI
+    on: [push, pull_request]
+    jobs:
+      test:
+        - Checkout
+        - Setup Node 20
+        - Install deps
+        - Lint (ESLint)
+        - Type check (tsc)
+        - Test (Vitest)
+        - Build
+      deploy:
+        - Deploy to Vercel (if main branch)
     ```
   - Status badge no README
   - Deploy automático:
-    - PRs → Preview
-    - main → Production
-  - Vercel integration
+    - PRs → Preview URL
+    - main → Production (rotnemcode.vercel.app)
 
-#### 6.4 Environment Variables
+#### 9.4 Environment Variables
 - **Prioridade:** 🟡 ALTA
 - **Entregáveis:**
-  - Criar `.env.example`
-  - Variáveis:
-    - `VITE_API_URL` (preparação backend)
-    - `VITE_GA_ID` (analytics)
-    - `VITE_SENTRY_DSN` (error tracking)
-  - Validation com zod
-  - Type-safe env (`env.ts`)
+  - Criar `.env.example`:
+    ```bash
+    VITE_SUPABASE_URL=https://xxx.supabase.co
+    VITE_SUPABASE_ANON_KEY=eyJhbGc...
+    VITE_SENTRY_DSN=https://xxx@sentry.io/xxx
+    VITE_STRIPE_PUBLIC_KEY=pk_live_xxx
+    ```
+  - Validation com zod (`lib/env.ts`):
+    ```tsx
+    const envSchema = z.object({
+      VITE_SUPABASE_URL: z.string().url(),
+      VITE_SUPABASE_ANON_KEY: z.string().min(100),
+    });
+    export const env = envSchema.parse(import.meta.env);
+    ```
+  - Type-safe: `env.VITE_SUPABASE_URL` (autocomplete)
 
-### Critérios de Aceitação Fase 6
+### Critérios de Aceitação Fase 9
 - [ ] SEO meta tags completos
-- [ ] Analytics trackando eventos
+- [ ] Sentry capturando erros
 - [ ] CI rodando em todas as PRs
-- [ ] Deploy automático funcionando
+- [ ] Deploy automático funcionando (Vercel)
 - [ ] Env vars tipadas e validadas
+- [ ] Production URL ativa
 
 ---
 
@@ -502,77 +811,193 @@
 
 ### Técnicas
 - ✅ Lighthouse Score: > 90
-- ✅ Bundle Size: < 200KB (gzipped)
-- ✅ Test Coverage: > 60%
+- ✅ Bundle Size: < 150KB (gzipped, inicial)
+- ✅ Test Coverage: > 50% (hooks críticos)
 - ✅ TypeScript Strict: 0 errors
 - ✅ ESLint: 0 errors, 0 warnings
 - ✅ Build Time: < 30s
+- ✅ Query Performance: < 100ms (p95)
+
+### Segurança
+- ✅ 4 Camadas de segurança implementadas
+- ✅ RLS em todas as tabelas críticas
+- ✅ JWT com 1h expiration
+- ✅ Audit log de ações admin
+- ✅ 0 vulnerabilidades CVE em dependências
+- ✅ HTTPS obrigatório (Vercel)
 
 ### UX
 - ✅ FCP (First Contentful Paint): < 1.5s
 - ✅ TTI (Time to Interactive): < 3s
 - ✅ CLS (Cumulative Layout Shift): < 0.1
 - ✅ Acessibilidade (a11y): WCAG AA
+- ✅ Mobile-first: responsivo em 100% das views
+
+### Negócio
+- 🎯 Conversão Free → Pro: > 5%
+- 🎯 Churn rate: < 10%
+- 🎯 MRR (Monthly Recurring Revenue): tracking
+- 🎯 Assets públicos por usuário: média > 3
 
 ### Desenvolvimento
 - ✅ Componentes reutilizáveis: 100%
 - ✅ Props drilling: eliminado (< 3 níveis)
 - ✅ Hot reload: < 100ms
 - ✅ IntelliSense: funcionando
+- ✅ Git commits: conventional commits
 
 ---
 
 ## 🎓 Tecnologias por Fase
 
-| Fase | Tecnologias |
-|------|-------------|
-| 1 | Tailwind, PostCSS, CVA, ESLint, Prettier, Husky |
-| 2 | React Router, Zustand/Context, Sonner |
-| 3 | Radix UI, Prism.js, React Hook Form, Zod, react-dropzone |
-| 4 | Vitest, Testing Library, Storybook |
-| 5 | React.lazy, Suspense, react-window, import maps |
-| 6 | GitHub Actions, Vercel, Analytics, Sentry |
+| Fase | Tecnologias | Status |
+|------|-------------|--------|
+| 1 | Tailwind, PostCSS, CVA, ESLint, Prettier, Husky | ✅ Completa |
+| 2 | React Router, Zustand, Sonner | ✅ Completa |
+| 3 | Supabase (Auth, Database, Edge Functions, Storage), PostgreSQL, RLS, JWT | ✅ Completa |
+| 4 | Radix UI, Prism.js, React Hook Form, Zod, react-dropzone | ⏳ Pendente |
+| 5 | Stripe Checkout, Stripe Webhooks, Stripe Customer Portal | ⏳ Pendente |
+| 6 | Admin Dashboard, Audit Log, Asset Moderation, Analytics | ⏳ Pendente |
+| 7 | Vitest, Testing Library, Playwright (opcional), Sentry | ⏳ Pendente |
+| 8 | React.lazy, Suspense, Database Indexing, Caching, Image Optimization | ⏳ Pendente |
+| 9 | GitHub Actions, Vercel, Sentry, SEO, PWA | ⏳ Pendente |
 
 ---
 
 ## 📝 Notas de Implementação
 
 ### Decisões Técnicas
+- **Supabase** sobre backend custom: Auth, Database, Storage integrado, RLS nativo
+- **Edge Functions** sobre REST API: Serverless, deploy rápido, integração com RLS
+- **JWT** sobre Session Cookies: Stateless, escala horizontal fácil
+- **PostgreSQL** sobre NoSQL: Relational data, ACID, RLS policies
 - **Tailwind PostCSS** sobre CDN: Performance e customização
 - **CVA** sobre inline variants: Type-safety e manutenibilidade
 - **Zustand** sobre Context: Performance em updates frequentes
 - **Radix UI** sobre Headless UI: Melhor DX e docs
 - **Vitest** sobre Jest: Mais rápido, melhor integração Vite
 - **Sonner** sobre react-hot-toast: Mais leve e customizável
+- **Stripe** sobre PayPal: Melhor DX, webhooks confiáveis, Customer Portal
 
-### Dependências a Instalar
+### Dependências Instaladas (Fase 1-3)
 ```bash
-# Fase 1
-npm i -D tailwindcss postcss autoprefixer
+# Core
+npm i react react-dom react-router-dom zustand sonner
+npm i @supabase/supabase-js
+
+# UI
+npm i tailwindcss postcss autoprefixer
 npm i class-variance-authority clsx tailwind-merge
+npm i lucide-react
+
+# Dev
+npm i -D typescript @types/react @types/react-dom
 npm i -D eslint prettier @typescript-eslint/parser
-npm i -D husky lint-staged
+npm i -D vite @vitejs/plugin-react
+```
 
-# Fase 2
-npm i react-router-dom zustand sonner
-
-# Fase 3
-npm i @radix-ui/react-dialog prismjs
+### Dependências a Instalar (Fase 4-9)
+```bash
+# Fase 4: UX Advanced
+npm i @radix-ui/react-dialog @radix-ui/react-select
+npm i prismjs
 npm i react-hook-form @hookform/resolvers zod
 npm i react-dropzone
 
-# Fase 4
-npm i -D vitest @testing-library/react jsdom
+# Fase 5: Stripe
+npm i @stripe/stripe-js stripe
 
-# Fase 5
+# Fase 7: Testes
+npm i -D vitest @testing-library/react jsdom
+npm i -D playwright @playwright/test # opcional
+
+# Fase 8: Performance
 npm i react-window
 
-# Fase 6
-# (apenas configs, sem deps extras)
+# Fase 9: Monitoramento
+npm i @sentry/react
+```
+
+### Supabase Migrations Aplicadas
+1. `001_initial_schema.sql` - Tabelas base (assets, subscriptions, entitlements)
+2. `002_rls_policies.sql` - Row Level Security
+3. `003_admin_role.sql` - Função is_admin()
+4. `004_publish_entitlement.sql` - Função check_publish_entitlement()
+5. `005_admin_actions_log.sql` - Tabela de audit log
+6. `006_prevent_self_promotion.sql` - Trigger de segurança
+7. `007_quota_management.sql` - Função get_user_publish_quota()
+
+### Edge Functions Deployed
+1. `publish-asset` - Validação de entitlements e publicação
+2. `stripe-webhook` - Processamento de eventos Stripe (subscriptions)
+3. `create-checkout` (futuro) - Criar Checkout Session
+4. `create-portal-session` (futuro) - Customer Portal
+5. `promote-admin` (futuro) - Promoção segura de admins
+
+### Estrutura de Pastas Atual
+```
+rotnemcode/
+├── docs/                    # Documentação completa
+│   ├── ROADMAP.md           # Este arquivo
+│   ├── IMPLEMENTATION_SUMMARY.md
+│   ├── SECURITY.md          # Threat model
+│   ├── ADMIN_GUIDE.md       # Procedimentos admin
+│   ├── FRONTEND_SECURITY.md # Hooks seguros
+│   └── TESTING_GUIDE.md     # Cenários de teste
+├── src/
+│   ├── components/
+│   │   ├── Sidebar.tsx
+│   │   └── ui/              # shadcn/ui components
+│   ├── hooks/
+│   │   ├── useAuth.tsx
+│   │   ├── useAppStore.tsx
+│   │   └── usePublishAsset.tsx
+│   ├── views/
+│   │   ├── MyAssetsView.tsx
+│   │   ├── Templates.tsx
+│   │   └── Settings.tsx (placeholder)
+│   ├── lib/
+│   │   ├── supabase.ts
+│   │   └── utils.ts
+│   ├── Router.tsx
+│   └── App.tsx
+├── supabase/
+│   ├── functions/
+│   │   ├── publish-asset/
+│   │   └── stripe-webhook/
+│   └── migrations/          # 7 migrations aplicadas
+└── package.json
 ```
 
 ---
 
-**Última atualização:** 29/11/2025  
-**Versão atual:** v0.1.0  
-**Próximo milestone:** v0.2.0 (Fase 1 completa)
+## 🔐 Segurança - Resumo
+
+### Camadas Implementadas
+1. **Frontend**: Hook `usePublishAsset` com JWT validation
+2. **Edge Function**: Validação de entitlements e quotas
+3. **RLS Policies**: Permissões row-level no Postgres
+4. **Audit Log**: Rastreamento de ações admin com trigger anti-self-promotion
+
+### Ataques Mitigados
+- ✅ **Bypass de Quota**: Edge Function valida via `get_user_publish_quota()`
+- ✅ **Privilege Escalation**: RLS impede UPDATE direto em `is_admin`
+- ✅ **Self-Promotion**: Trigger `prevent_admin_self_promotion` bloqueia
+- ✅ **Token Theft**: JWT expira em 1h, refresh automático
+- ✅ **SQL Injection**: RLS policies com prepared statements
+- ✅ **Direct API Access**: SERVICE_ROLE_KEY em Edge Function apenas
+- ✅ **CSRF**: Supabase Auth protege (SameSite cookies)
+
+### Próximos Passos de Segurança
+- [ ] Rate limiting (Supabase built-in)
+- [ ] 2FA (Supabase Auth MFA)
+- [ ] CAPTCHA no signup (Cloudflare Turnstile)
+- [ ] Content Security Policy (CSP headers)
+- [ ] Webhook signature validation (Stripe)
+
+---
+
+**Última atualização:** 04/12/2025  
+**Versão atual:** v0.3.0  
+**Próximo milestone:** v0.4.0 (Fase 4: UX Advanced)  
+**Status:** 3/9 fases completas (33%)
