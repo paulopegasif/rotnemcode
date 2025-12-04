@@ -9,7 +9,9 @@ Modelo de assinatura mensal acessível para liberar recursos premium e permitir 
 ## Planos
 - free: acesso básico, limites de criação, sem publicação pública
 - pro: assinatura mensal barata, publicação pública habilitada, limites ampliados
-- enterprise (futuro): equipes, quotas maiores
+- administrador: gestão de conteúdo e curadoria (acesso total), define `is_featured`, moderação
+  
+Observação: o papel de administrador é controlado via `profiles.is_admin=true` e possui override nas políticas RLS.
 
 ## Entitlements
 - can_publish: permite publicar assets como públicos
