@@ -4,10 +4,12 @@ import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFound';
 import { ComponentsView } from './views/ComponentsView';
+import { FavoritesView } from './views/FavoritesView';
 import { Home } from './views/Home';
-import { ListView } from './views/ListView';
 import { LoginView } from './views/LoginView';
 import { MyAssetsView } from './views/MyAssetsView';
+import { SectionsView } from './views/SectionsView';
+import { TemplatesView } from './views/TemplatesView';
 import { UploadView } from './views/Upload';
 
 const router = createBrowserRouter([
@@ -31,12 +33,12 @@ const router = createBrowserRouter([
       },
       {
         path: 'templates',
-        element: <ListView type="template" />,
+        element: <TemplatesView />,
         handle: { crumb: 'Templates' },
       },
       {
         path: 'sections',
-        element: <ListView type="section" />,
+        element: <SectionsView />,
         handle: { crumb: 'Sections' },
       },
       {
@@ -66,7 +68,7 @@ const router = createBrowserRouter([
         path: 'favorites',
         element: (
           <ProtectedRoute>
-            <ListView type="favorites" />
+            <FavoritesView />
           </ProtectedRoute>
         ),
         handle: { crumb: 'Favorites' },
