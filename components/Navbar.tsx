@@ -91,11 +91,11 @@ export function Navbar({
         {/* Search */}
         <div className="flex-1 flex justify-center max-w-md mx-auto">
           <div className="relative w-full group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 dark:text-zinc-400 group-focus-within:text-primary transition-colors" />
             <Input
               type="search"
               placeholder="Buscar templates, snippets..."
-              className="w-full pl-10 pr-4 h-10 bg-muted/30 border-transparent rounded-xl focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+              className="w-full pl-10 pr-4 h-10 rounded-xl"
               aria-label="Buscar na biblioteca"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
