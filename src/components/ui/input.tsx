@@ -15,14 +15,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           // Base styles
           'flex h-10 w-full rounded-lg border px-3 py-2 text-sm',
-          // Background - light mode white, dark mode dark
-          'bg-white dark:bg-zinc-900/50',
-          // Text color
-          'text-foreground',
+          // Background - explicit white for light, dark for dark mode
+          '[background-color:#ffffff] dark:bg-zinc-900/50',
+          // Text color - dark for light mode, light for dark mode
+          'text-zinc-900 dark:text-zinc-100',
           // Border and ring
-          'border-input ring-offset-background',
+          'border-zinc-300 dark:border-zinc-700 ring-offset-background',
           // Placeholder
-          'placeholder:text-muted-foreground',
+          'placeholder:text-zinc-500 dark:placeholder:text-zinc-400',
           // Focus state with smooth transition
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary',
           'transition-all duration-200',
