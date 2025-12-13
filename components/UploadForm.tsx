@@ -187,11 +187,17 @@ export function UploadForm() {
               id="asset-tags"
               placeholder="e.g., dark-mode, hero, form (comma separated)"
               {...register('tags', {
-                setValueAs: (value: string) =>
-                  value
+                setValueAs: (value: string | string[]) => {
+                  // Se já for um array, retorna como está
+                  if (Array.isArray(value)) return value;
+                  // Se for string vazia, retorna array vazio
+                  if (!value || typeof value !== 'string') return [];
+                  // Converte string separada por vírgulas em array
+                  return value
                     .split(',')
                     .map((tag) => tag.trim())
-                    .filter((tag) => tag.length > 0),
+                    .filter((tag) => tag.length > 0);
+                },
               })}
               disabled={isSubmitting || isCreating}
               className={errors.tags ? 'border-red-500' : ''}
