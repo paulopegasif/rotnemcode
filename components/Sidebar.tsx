@@ -1,4 +1,13 @@
-import { FileCode, FolderOpen, Heart, Layers, Layout, Settings, UploadCloud } from 'lucide-react';
+import {
+  FileCode,
+  FolderOpen,
+  Heart,
+  Layers,
+  Layout,
+  Settings,
+  UploadCloud,
+  LayoutDashboard,
+} from 'lucide-react';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
@@ -49,6 +58,13 @@ export function Sidebar({ isOpen, onClose: _onClose }: { isOpen: boolean; onClos
       )}
     >
       <div className="h-full flex flex-col py-4 overflow-y-auto">
+        <div className="px-3 py-2 space-y-1">
+          <p className="px-4 text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+            Navigation
+          </p>
+          <SidebarItem icon={LayoutDashboard} label="Dashboard" to="/dashboard" />
+        </div>
+        <div className="my-4 border-t mx-4" />
         <div className="px-3 py-2 space-y-1">
           <p className="px-4 text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
             Library

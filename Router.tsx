@@ -25,6 +25,11 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
+        path: 'dashboard',
+        element: <Home />,
+        handle: { crumb: 'Dashboard' },
+      },
+      {
         path: 'templates',
         element: <ListView type="template" />,
         handle: { crumb: 'Templates' },
