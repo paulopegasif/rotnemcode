@@ -8,6 +8,7 @@ import {
   Eye,
   MoreVertical,
   Copy,
+  Heart,
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
@@ -16,7 +17,6 @@ import { CodePreviewDialog } from './CodePreviewDialog';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export type AssetType = 'Template' | 'Section' | 'CSS' | 'JS' | 'HTML';
@@ -48,6 +48,35 @@ export interface AssetItem {
   code?: string; // raw code snippet or template JSON preview
 }
 
+// Type-specific styling
+const typeStyles: Record<AssetType, { gradient: string; iconColor: string; bgColor: string }> = {
+  Template: {
+    gradient: 'from-blue-500 to-indigo-600',
+    iconColor: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
+  },
+  Section: {
+    gradient: 'from-purple-500 to-pink-600',
+    iconColor: 'text-purple-500',
+    bgColor: 'bg-purple-500/10',
+  },
+  CSS: {
+    gradient: 'from-sky-400 to-cyan-500',
+    iconColor: 'text-sky-400',
+    bgColor: 'bg-sky-400/10',
+  },
+  JS: {
+    gradient: 'from-yellow-400 to-orange-500',
+    iconColor: 'text-yellow-500',
+    bgColor: 'bg-yellow-400/10',
+  },
+  HTML: {
+    gradient: 'from-orange-500 to-red-500',
+    iconColor: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+  },
+};
+
 export const AssetCard: React.FC<{
   item: AssetItem;
   isFavorite?: boolean;
@@ -57,25 +86,30 @@ export const AssetCard: React.FC<{
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [isLocalFavorite, setIsLocalFavorite] = useState(isFavorite);
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Sincronizar estado local com prop
+  const styles = typeStyles[item.type] || typeStyles.Template;
+
+  // Sync local state with prop
   React.useEffect(() => {
     setIsLocalFavorite(isFavorite);
   }, [isFavorite]);
+
   const getIcon = (type: AssetType) => {
+    const iconClass = cn('h-10 w-10 transition-transform duration-500', styles.iconColor);
     switch (type) {
       case 'Template':
-        return <Layout className="h-8 w-8 text-blue-500" />;
+        return <Layout className={iconClass} />;
       case 'Section':
-        return <Layers className="h-8 w-8 text-purple-500" />;
+        return <Layers className={iconClass} />;
       case 'CSS':
-        return <FileCode className="h-8 w-8 text-sky-400" />;
+        return <FileCode className={iconClass} />;
       case 'JS':
-        return <Code2 className="h-8 w-8 text-yellow-400" />;
+        return <Code2 className={iconClass} />;
       case 'HTML':
-        return <Terminal className="h-8 w-8 text-orange-500" />;
+        return <Terminal className={iconClass} />;
       default:
-        return <FileJson className="h-8 w-8" />;
+        return <FileJson className={iconClass} />;
     }
   };
 
@@ -92,7 +126,6 @@ export const AssetCard: React.FC<{
 
   const handleToggleFavorite = () => {
     if (!onToggleFavorite) return;
-    // Atualizar estado local imediatamente para feedback visual instantâneo
     setIsLocalFavorite(!isLocalFavorite);
     onToggleFavorite(item.id);
   };
@@ -108,7 +141,7 @@ export const AssetCard: React.FC<{
       <>
         {before}
         <mark
-          className="bg-yellow-300/60 dark:bg-yellow-400/30 rounded px-0.5"
+          className="bg-primary/20 dark:bg-primary/30 rounded px-0.5"
           aria-label={`Termo buscado: ${match}`}
         >
           {match}
@@ -119,76 +152,144 @@ export const AssetCard: React.FC<{
   };
 
   return (
-    <Card className="group overflow-hidden flex flex-col hover:shadow-md transition-all duration-200">
-      <div className="h-40 bg-muted w-full flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-tr from-muted/50 to-muted/10" />
-        <div className="scale-100 group-hover:scale-110 transition-transform duration-500">
-          {getIcon(item.type)}
+    <div
+      className={cn(
+        'group relative rounded-xl overflow-hidden',
+        'bg-card border border-border/50',
+        'transition-all duration-300 ease-spring',
+        'hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5',
+        'hover:border-primary/20'
+      )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Thumbnail/Icon Area */}
+      <div className="relative h-44 w-full overflow-hidden">
+        {/* Background gradient */}
+        <div
+          className={cn(
+            'absolute inset-0 bg-gradient-to-br opacity-10 transition-opacity duration-300',
+            styles.gradient,
+            isHovered && 'opacity-20'
+          )}
+        />
+
+        {/* Pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(255,255,255,0.1)_1px,_transparent_1px)] bg-[length:20px_20px]" />
+
+        {/* Centered icon */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div
+            className={cn(
+              'p-5 rounded-2xl transition-all duration-500',
+              styles.bgColor,
+              isHovered && 'scale-110 shadow-lg'
+            )}
+          >
+            {getIcon(item.type)}
+          </div>
         </div>
-        <div className="absolute top-2 right-2">
-          <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm shadow-sm">
+
+        {/* Top badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+          <Badge
+            className={cn(
+              'bg-background/90 backdrop-blur-sm border-0 shadow-sm',
+              'text-xs font-medium'
+            )}
+          >
             {item.type}
           </Badge>
+          {item.status === 'Pro' && (
+            <Badge className="bg-gradient-to-r from-primary to-primary-600 text-white border-0 shadow-sm">
+              PRO
+            </Badge>
+          )}
         </div>
+
+        {/* Quick actions overlay */}
+        <div
+          className={cn(
+            'absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent',
+            'flex items-end justify-center pb-4 gap-2',
+            'opacity-0 transition-opacity duration-300',
+            isHovered && 'opacity-100'
+          )}
+        >
+          <Button
+            variant="secondary"
+            size="sm"
+            className="bg-white/90 text-foreground hover:bg-white shadow-lg rounded-lg"
+            onClick={() => setShowPreview(true)}
+          >
+            <Eye className="h-4 w-4 mr-1.5" />
+            Preview
+          </Button>
+          {item.code && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="bg-white/90 text-foreground hover:bg-white shadow-lg rounded-lg h-9 w-9"
+              onClick={handleCopy}
+              aria-label="Copiar código"
+            >
+              <Copy className={cn('h-4 w-4', copied && 'text-accent')} />
+            </Button>
+          )}
+        </div>
+
+        {/* Favorite button (always visible) */}
+        <button
+          onClick={handleToggleFavorite}
+          className={cn(
+            'absolute top-3 right-3 p-2 rounded-full transition-all duration-200',
+            'bg-background/80 backdrop-blur-sm shadow-sm',
+            'hover:bg-background hover:scale-110',
+            isLocalFavorite && 'text-red-500'
+          )}
+          aria-label={isLocalFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+        >
+          <Heart className={cn('h-4 w-4', isLocalFavorite && 'fill-current')} />
+        </button>
       </div>
-      <div className="p-4 flex flex-col flex-grow">
-        <h3 className="font-semibold text-lg leading-tight mb-1 truncate" title={item.title}>
+
+      {/* Content */}
+      <div className="p-4">
+        <h3
+          className="font-semibold text-base leading-tight mb-1.5 truncate group-hover:text-primary transition-colors"
+          title={item.title}
+        >
           {renderTitle()}
         </h3>
-        <p className="text-xs text-muted-foreground mb-4">Updated {item.updatedAt}</p>
-        <div className="mt-auto flex items-center justify-between">
+
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Atualizado {item.updatedAt}</span>
+          {item.category && <span className="capitalize">{item.category.replace('-', ' ')}</span>}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/50">
           <Button
             variant="outline"
             size="sm"
-            className="w-full mr-2 group-hover:border-primary/50 transition-colors"
-            aria-label="Visualizar"
-            onClick={() => setShowPreview(!showPreview)}
+            className="flex-1 rounded-lg text-xs h-9"
+            onClick={() => setShowPreview(true)}
           >
-            <Eye className="h-4 w-4 mr-2" />
-            {showPreview ? 'Fechar' : 'Preview'}
+            <Eye className="h-3.5 w-3.5 mr-1.5" />
+            Ver Código
           </Button>
-          <div className="flex gap-1">
-            {item.code && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={handleCopy}
-                aria-label={copied ? 'Código copiado' : 'Copiar código'}
-              >
-                <Copy className={cn('h-4 w-4', copied && 'text-green-500')} />
-              </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                'h-9 w-9 transition-colors',
-                isLocalFavorite && 'text-red-500 hover:text-red-600'
-              )}
-              onClick={handleToggleFavorite}
-              aria-label={isLocalFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-            >
-              <svg
-                className="h-4 w-4"
-                viewBox="0 0 24 24"
-                fill={isLocalFavorite ? 'currentColor' : 'none'}
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-lg"
+            aria-label="Mais opções"
+          >
+            <MoreVertical className="h-4 w-4 text-muted-foreground" />
+          </Button>
         </div>
       </div>
 
       <CodePreviewDialog item={item} open={showPreview} onOpenChange={setShowPreview} />
-    </Card>
+    </div>
   );
 };
