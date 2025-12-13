@@ -11,15 +11,17 @@
 | Fase 1 | Fundação (Tooling & Components) | 1-2 dias | ~2h | ✅ Completa (29/11/25) |
 | Fase 2 | Navegação & Estado | 1 dia | ~2h | ✅ Completa (29/11/25) |
 | Fase 3 | Backend & Segurança | 2-3 dias | ~6h | ✅ Completa (04/12/25) |
-| Fase 4 | UX Avançado | 1-2 dias | ~2h | ✅ Completa (13/12/25) |
-| Fase 5 | Assinaturas & Pagamentos | 1-2 dias | - | ⏳ Pendente |
-| Fase 6 | Admin & Curadoria | 1 dia | - | ⏳ Pendente |
-| Fase 7 | Qualidade & Testes | 1 dia | - | ⏳ Pendente |
-| Fase 8 | Performance & Scale | 1-2 dias | - | ⏳ Pendente |
-| Fase 9 | Deploy & Monitoramento | 1 dia | - | ⏳ Pendente |
+| Fase 4 | UX Avançado | 1-2 dias | ~3h | ✅ Completa (13/12/25) |
+| Fase 5 | UI/UX Refinement (Design System) | 2-3 dias | - | ⏳ Em andamento |
+| Fase 6 | Assinaturas & Pagamentos (Stripe) | 1-2 dias | - | 📅 Produção |
+| Fase 7 | Admin & Curadoria | 1 dia | - | ⏳ Pendente |
+| Fase 8 | Qualidade & Testes | 1 dia | - | ⏳ Pendente |
+| Fase 9 | Performance & Scale | 1-2 dias | - | ⏳ Pendente |
+| Fase 10 | Deploy & Monitoramento | 1 dia | - | ⏳ Pendente |
 
-**Total Estimado:** 10-14 dias de desenvolvimento  
-**Progresso:** 4/9 fases (44%) | ~12h de desenvolvimento
+**Total Estimado:** 11-16 dias de desenvolvimento  
+**Progresso:** 4/10 fases (40%) | ~13h de desenvolvimento  
+**Nota:** Stripe adiado para ambiente de produção após testes beta
 
 ---
 
@@ -403,9 +405,55 @@
 
 ---
 
-## 💳 Fase 5: Assinaturas & Pagamentos
+## 🎨 Fase 5: UI/UX Refinement (Design System)
+
+**Objetivo:** Refinar interface e experiência do usuário com base em boas práticas de mercado, estabelecendo design system moderno e consistente antes de abrir para testes beta.
+
+**Duração Estimada:** 2-3 dias
+
+### Contexto
+Antes de implementar Stripe e abrir para usuários beta, precisamos garantir uma experiência visual moderna e profissional. Esta fase foca em UI/UX baseada em referências como Apple, Glassmorphism, Envato Elements, e Abacate Pay.
+
+**Documentação Completa:** `docs/FASE_5_UI_RESEARCH.md`
+
+### Tarefas Principais
+
+#### 5.1 Design System Foundation
+- [ ] Documentar design tokens (cores, tipografia, espaçamento)
+- [ ] Criar componentes glass effect (GlassCard, GlassModal)
+- [ ] Refinar Button variants (gradient, ghost, outline)
+- [ ] Avatar e Badge components
+
+#### 5.2 Navigation Refinement
+- [ ] Navbar com glassmorphism e avatar dropdown
+- [ ] Sidebar com active state destacado e ícones coloridos
+- [ ] Command palette (⌘K)
+
+#### 5.3 Content Pages Enhancement
+- [ ] Home hero section com gradiente
+- [ ] Asset cards com hover effects dramáticos
+- [ ] Code preview modal fullscreen
+- [ ] Empty states com SVGs animados
+
+#### 5.4 Forms & Interactions
+- [ ] Login/Signup pages com split screen
+- [ ] Toast notifications refinadas
+- [ ] Micro-animações (spring transitions)
+
+#### 5.5 Responsive & A11y
+- [ ] Mobile-first (375px+)
+- [ ] Lighthouse A11y 90+
+- [ ] Keyboard navigation completa
+
+**Status:** ⏳ EM ANDAMENTO
+
+---
+
+## 💳 Fase 6: Assinaturas & Pagamentos (Stripe)
 
 **Objetivo:** Monetizar com Stripe Checkout e gerenciar planos Pro.
+
+**Nota:** ⚠️ Adiada para ambiente de produção após testes beta.
 
 ### Tarefas
 
