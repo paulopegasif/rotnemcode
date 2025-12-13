@@ -12,8 +12,8 @@ export function FavoritesView() {
   const toggleFavorite = useAppStore((state) => state.toggleFavorite);
   const searchQuery = useAppStore((state) => state.searchQuery);
 
-  // Filtrar apenas favoritos
-  const favoriteAssets = RECENT_ASSETS.filter((item) => favorites.has(item.id));
+  // Filtrar apenas favoritos (favorites é um array de IDs)
+  const favoriteAssets = RECENT_ASSETS.filter((item) => favorites.includes(item.id));
 
   // Aplicar busca se houver
   const filteredFavorites = searchQuery
