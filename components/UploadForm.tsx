@@ -1,64 +1,112 @@
-import { Code2, FileCode, FileJson, Terminal } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Code2, FileCode, FileJson, Loader2, Terminal, Upload } from 'lucide-react';
 import React, { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+
+import { useCreateAsset } from '../hooks/useCreateAsset';
+import { assetSchema, type AssetFormData } from '../src/lib/schemas/assetSchema';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 export function UploadForm() {
   const [activeTab, setActiveTab] = useState<'template' | 'css' | 'js' | 'html'>('template');
-  const [code, setCode] = useState('');
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const { createAsset, isCreating } = useCreateAsset();
 
-  const validateCode = () => {
-    if (!code.trim()) {
-      toast.error('Código vazio', {
-        description: 'Por favor, adicione o código antes de salvar.',
-      });
-      return false;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    watch,
+    setValue,
+  } = useForm<AssetFormData>({
+    resolver: zodResolver(assetSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      type: 'template',
+      code: '',
+      tags: [],
+    },
+    mode: 'onChange', // Validação em tempo real
+  });
 
-    if (activeTab === 'template') {
+  // Monitorar mudanças no código para validar JSON em tempo real
+  const codeValue = watch('code');
+  React.useEffect(() => {
+    if (activeTab === 'template' && codeValue) {
       try {
-        const parsed = JSON.parse(code);
-        if (!parsed.version && !parsed.content && !parsed.elements) {
-          toast.error('Estrutura JSON inválida', {
-            description:
-              'JSON deve conter "version", "content" ou "elements" (estrutura Elementor).',
-          });
-          return false;
-        }
-      } catch {
-        toast.error('JSON inválido', {
-          description: 'Verifique a sintaxe do JSON.',
-        });
-        return false;
+        JSON.parse(codeValue);
+        setJsonError(null);
+      } catch (error) {
+        setJsonError(
+          error instanceof SyntaxError ? `JSON inválido: ${error.message}` : 'JSON inválido'
+        );
       }
+    } else {
+      setJsonError(null);
     }
+  }, [codeValue, activeTab]);
 
-    if (activeTab === 'css') {
-      if (!code.includes('{') || !code.includes('}')) {
-        toast.error('CSS inválido', {
-          description: 'CSS deve conter pelo menos um bloco { }.',
+  // Sincroniza tipo com o tab ativo
+  React.useEffect(() => {
+    setValue('type', activeTab);
+  }, [activeTab, setValue]);
+
+  // Drag & Drop para templates JSON
+  const onDrop = React.useCallback(
+    (acceptedFiles: File[]) => {
+      if (acceptedFiles.length === 0) return;
+
+      const file = acceptedFiles[0];
+
+      // Validar tamanho (5 MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Arquivo muito grande', {
+          description: 'O arquivo deve ter no máximo 5 MB.',
         });
-        return false;
+        return;
       }
-    }
 
-    if (activeTab === 'js') {
-      if (code.includes('eval(') || code.includes('Function(')) {
-        toast.error('Código inseguro detectado', {
-          description: 'Código JS contém funções potencialmente inseguras (eval, Function).',
+      // Ler conteúdo do arquivo
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setValue('code', content);
+        toast.success('Arquivo carregado!', {
+          description: `${file.name} foi carregado com sucesso.`,
         });
-        return false;
-      }
-    }
+      };
+      reader.readAsText(file);
+    },
+    [setValue]
+  );
 
-    toast.success('Código validado!', {
-      description: 'O código passou em todas as validações.',
-    });
-    return true;
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/json': ['.json'],
+    },
+    maxFiles: 1,
+    disabled: isSubmitting || isCreating || activeTab !== 'template',
+  });
+
+  const onSubmit = async (data: AssetFormData) => {
+    try {
+      await createAsset(data);
+      // useCreateAsset já faz redirect, mas podemos resetar form aqui se necessário
+      reset();
+    } catch (error) {
+      // Erro já tratado no hook com toast
+      console.error('Error submitting form:', error);
+    }
   };
 
   return (
@@ -103,50 +151,114 @@ export function UploadForm() {
         <div className="space-y-4">
           <div>
             <label htmlFor="asset-title" className="block text-sm font-medium mb-1.5">
-              Title
+              Title <span className="text-red-500">*</span>
             </label>
             <Input
               id="asset-title"
               placeholder={`e.g., My ${activeTab === 'template' ? 'Awesome Landing Page' : 'Custom Script'}`}
+              {...register('title')}
+              disabled={isSubmitting || isCreating}
+              className={errors.title ? 'border-red-500' : ''}
             />
+            {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
           </div>
+
           <div>
             <label htmlFor="asset-description" className="block text-sm font-medium mb-1.5">
               Description
             </label>
-            <Textarea id="asset-description" placeholder="Describe what this asset does..." />
+            <Textarea
+              id="asset-description"
+              placeholder="Describe what this asset does..."
+              {...register('description')}
+              disabled={isSubmitting || isCreating}
+              className={errors.description ? 'border-red-500' : ''}
+            />
+            {errors.description && (
+              <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+            )}
           </div>
+
           <div>
             <label htmlFor="asset-tags" className="block text-sm font-medium mb-1.5">
               Tags
             </label>
-            <Input id="asset-tags" placeholder="e.g., dark-mode, hero, form (comma separated)" />
+            <Input
+              id="asset-tags"
+              placeholder="e.g., dark-mode, hero, form (comma separated)"
+              {...register('tags', {
+                setValueAs: (value: string) =>
+                  value
+                    .split(',')
+                    .map((tag) => tag.trim())
+                    .filter((tag) => tag.length > 0),
+              })}
+              disabled={isSubmitting || isCreating}
+              className={errors.tags ? 'border-red-500' : ''}
+            />
+            {errors.tags && <p className="text-sm text-red-500 mt-1">{errors.tags.message}</p>}
           </div>
 
           {activeTab === 'template' && (
             <div>
               <label htmlFor="json-code" className="block text-sm font-medium mb-1.5">
-                JSON Code
+                JSON Code <span className="text-red-500">*</span>
               </label>
+
+              {/* Drag & Drop Zone */}
+              <div
+                {...getRootProps()}
+                className={cn(
+                  'mb-3 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors',
+                  isDragActive && 'border-primary bg-primary/5',
+                  !isDragActive && 'border-muted-foreground/25 hover:border-primary/50',
+                  (isSubmitting || isCreating) && 'opacity-50 cursor-not-allowed'
+                )}
+              >
+                <input {...getInputProps()} />
+                <Upload className="mx-auto h-8 w-8 mb-2 text-muted-foreground" />
+                {isDragActive ? (
+                  <p className="text-sm text-primary font-medium">Solte o arquivo JSON aqui...</p>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Arraste um arquivo JSON ou clique para selecionar
+                    </p>
+                    <p className="text-xs text-muted-foreground">Máximo 5 MB</p>
+                  </>
+                )}
+              </div>
+
               <Textarea
                 id="json-code"
-                className="min-h-[200px] font-mono bg-slate-950 text-slate-50"
+                className={`min-h-[200px] font-mono bg-slate-950 text-slate-50 ${
+                  errors.code || jsonError ? 'border-red-500' : 'border-green-500/50'
+                } ${!errors.code && !jsonError && codeValue ? 'border-l-4' : ''}`}
                 placeholder='{"version": "2.0", "elements": []}'
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                {...register('code')}
+                disabled={isSubmitting || isCreating}
               />
+              {jsonError && (
+                <p className="text-sm text-yellow-600 dark:text-yellow-500 mt-1 flex items-center gap-1">
+                  ⚠️ {jsonError}
+                </p>
+              )}
+              {errors.code && <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>}
+              {!errors.code && !jsonError && codeValue && (
+                <p className="text-sm text-green-600 dark:text-green-500 mt-1">✓ JSON válido</p>
+              )}
             </div>
           )}
 
           {(activeTab === 'css' || activeTab === 'js' || activeTab === 'html') && (
             <div>
               <label htmlFor="code-input" className="block text-sm font-medium mb-1.5">
-                Code
+                Code <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Textarea
                   id="code-input"
-                  className="min-h-[200px] font-mono bg-slate-950 text-slate-50"
+                  className={`min-h-[200px] font-mono bg-slate-950 text-slate-50 ${errors.code ? 'border-red-500' : ''}`}
                   placeholder={
                     activeTab === 'css'
                       ? '.my-class { color: red; }'
@@ -154,29 +266,38 @@ export function UploadForm() {
                         ? 'console.log("Hello World");'
                         : '<div>Hello World</div>'
                   }
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  {...register('code')}
+                  disabled={isSubmitting || isCreating}
                 />
               </div>
+              {errors.code && <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>}
             </div>
           )}
 
           <div className="pt-4 flex gap-2 justify-end">
-            <Button type="button" variant="outline" size="md" onClick={validateCode}>
-              Validar
+            <Button
+              type="button"
+              variant="outline"
+              size="md"
+              onClick={() => reset()}
+              disabled={isSubmitting || isCreating}
+            >
+              Limpar
             </Button>
             <Button
               size="md"
-              className="w-full sm:w-auto"
-              onClick={() => {
-                if (validateCode()) {
-                  toast.success('Salvo com sucesso!', {
-                    description: 'O asset foi adicionado à sua biblioteca.',
-                  });
-                }
-              }}
+              className="w-full sm:w-auto gap-2"
+              onClick={handleSubmit(onSubmit)}
+              disabled={isSubmitting || isCreating}
             >
-              Salvar na Biblioteca
+              {isSubmitting || isCreating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                'Salvar na Biblioteca'
+              )}
             </Button>
           </div>
         </div>

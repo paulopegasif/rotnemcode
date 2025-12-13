@@ -1,14 +1,16 @@
-import { Globe, Lock, Plus, RefreshCw } from 'lucide-react';
+import { AlertCircle, Globe, Lock, Plus, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { useGetQuota } from '../hooks/useGetQuota';
 import { usePublishAsset } from '../hooks/usePublishAsset';
 import { supabase } from '../lib/supabase';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { GridSkeleton } from '@/components/ui/skeleton';
 
 interface Asset {
   id: string;
@@ -26,6 +28,7 @@ interface Asset {
 export function MyAssetsView() {
   const navigate = useNavigate();
   const { publishAsset, isPublishing } = usePublishAsset();
+  const { quota } = useGetQuota();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -69,6 +72,7 @@ export function MyAssetsView() {
 
   useEffect(() => {
     fetchAssets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRefresh = () => {
@@ -110,15 +114,7 @@ export function MyAssetsView() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Meus Assets</h1>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="p-6 animate-pulse">
-              <div className="h-32 bg-muted rounded mb-4" />
-              <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-              <div className="h-3 bg-muted rounded w-1/2" />
-            </Card>
-          ))}
-        </div>
+        <GridSkeleton count={6} />
       </div>
     );
   }
@@ -145,6 +141,61 @@ export function MyAssetsView() {
           </Button>
         </div>
       </div>
+
+      {/* Quota Indicator */}
+      {quota && (
+        <Card
+          className={`p-4 border-l-4 ${
+            quota.current_public_count >= quota.max_allowed
+              ? 'border-l-red-500 bg-red-50 dark:bg-red-950/20'
+              : quota.current_public_count / quota.max_allowed > 0.7
+                ? 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
+                : 'border-l-green-500 bg-green-50 dark:bg-green-950/20'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle
+                className={`h-5 w-5 ${
+                  quota.current_public_count >= quota.max_allowed
+                    ? 'text-red-600'
+                    : quota.current_public_count / quota.max_allowed > 0.7
+                      ? 'text-yellow-600'
+                      : 'text-green-600'
+                }`}
+              />
+              <span className="font-medium">
+                Quota de Publicação: {quota.current_public_count}/{quota.max_allowed} ({quota.tier})
+              </span>
+            </div>
+            {quota.current_public_count >= quota.max_allowed && (
+              <Button size="sm" variant="default" onClick={() => navigate('/pricing')}>
+                Upgrade
+              </Button>
+            )}
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+            <div
+              className={`h-full transition-all ${
+                quota.current_public_count >= quota.max_allowed
+                  ? 'bg-red-500'
+                  : quota.current_public_count / quota.max_allowed > 0.7
+                    ? 'bg-yellow-500'
+                    : 'bg-green-500'
+              }`}
+              style={{ width: `${(quota.current_public_count / quota.max_allowed) * 100}%` }}
+            />
+          </div>
+
+          {quota.current_public_count >= quota.max_allowed && (
+            <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+              Você atingiu sua quota de assets públicos. Upgrade seu plano para publicar mais.
+            </p>
+          )}
+        </Card>
+      )}
 
       {assets.length === 0 ? (
         <Card className="p-12 text-center">
@@ -231,7 +282,18 @@ export function MyAssetsView() {
                     size="sm"
                     className="flex-1"
                     onClick={() => handleTogglePublish(asset.id, asset.is_public)}
-                    disabled={isPublishing}
+                    disabled={
+                      isPublishing ||
+                      (!asset.is_public &&
+                        quota &&
+                        quota.current_public_count >= quota.max_allowed) ||
+                      false
+                    }
+                    title={
+                      !asset.is_public && quota && quota.current_public_count >= quota.max_allowed
+                        ? 'Você atingiu sua quota de publicação. Faça upgrade para publicar mais.'
+                        : ''
+                    }
                   >
                     {isPublishing ? (
                       <>

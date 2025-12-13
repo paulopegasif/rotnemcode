@@ -3,8 +3,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
+import { useGetQuota } from '../hooks/useGetQuota';
 import { useAppStore } from '../store/useAppStore';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -17,6 +19,7 @@ export function Navbar({
 }) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { quota } = useGetQuota();
   const isDark = useAppStore((state) => state.isDark);
   const toggleTheme = useAppStore((state) => state.toggleTheme);
   const searchQuery = useAppStore((state) => state.searchQuery);
@@ -81,6 +84,26 @@ export function Navbar({
           </Button>
           {user ? (
             <>
+              {quota && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden sm:flex items-center gap-2"
+                  onClick={() => navigate('/pricing')}
+                  title={`Plano: ${quota.tier} (${quota.current_public_count}/${quota.max_allowed} assets públicos)`}
+                >
+                  <Badge
+                    variant={quota.tier === 'pro' ? 'default' : 'secondary'}
+                    className={`text-xs ${
+                      quota.tier === 'pro'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-400 text-white dark:bg-gray-600'
+                    }`}
+                  >
+                    {quota.tier.toUpperCase()}
+                  </Badge>
+                </Button>
+              )}
               <div className="hidden sm:flex items-center gap-2 text-sm">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">{user.email}</span>
