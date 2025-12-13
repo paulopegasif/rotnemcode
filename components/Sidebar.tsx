@@ -7,7 +7,6 @@ import {
   Settings,
   UploadCloud,
   LayoutDashboard,
-  Sparkles,
 } from 'lucide-react';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -149,20 +148,6 @@ export function Sidebar({ isOpen, onClose: _onClose }: { isOpen: boolean; onClos
           <SidebarItem icon={UploadCloud} label="Upload Center" to="/upload" accentColor="accent" />
           <SidebarItem icon={Heart} label="Favoritos" to="/favorites" accentColor="pink" />
         </SidebarSection>
-
-        {/* Pro Badge - Visual upgrade teaser */}
-        <div className="mx-4 my-4 p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary-600/10 border border-primary/20">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold text-primary">Upgrade Pro</span>
-          </div>
-          <p className="text-xs text-muted-foreground mb-3">
-            Desbloqueie assets ilimitados e recursos exclusivos.
-          </p>
-          <button className="w-full py-2 text-xs font-medium text-white rounded-lg bg-gradient-to-r from-primary to-primary-600 hover:shadow-glow transition-shadow duration-300">
-            Ver planos
-          </button>
-        </div>
 
         {/* Settings at bottom */}
         <div className="mt-auto px-3 pb-4">

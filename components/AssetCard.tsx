@@ -200,11 +200,6 @@ export const AssetCard: React.FC<{
           >
             {item.type}
           </Badge>
-          {item.status === 'Pro' && (
-            <Badge className="bg-gradient-to-r from-primary to-primary-600 text-white border-0 shadow-sm">
-              PRO
-            </Badge>
-          )}
         </div>
 
         {/* Quick actions overlay */}

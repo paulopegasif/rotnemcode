@@ -76,8 +76,8 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
         className={cn(
           // Base glass styles
           'rounded-xl border',
-          'bg-white/80 dark:bg-zinc-900/80',
-          'border-white/20 dark:border-white/10',
+          'bg-white/90 dark:bg-zinc-900/80',
+          'border-zinc-200/50 dark:border-white/10',
           'shadow-glass',
           blurClasses[blur],
           gradientClasses[gradient],

@@ -14,7 +14,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         type={type}
         className={cn(
           // Base styles
-          'flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm',
+          'flex h-10 w-full rounded-lg border px-3 py-2 text-sm',
+          // Background - light mode white, dark mode dark
+          'bg-white dark:bg-zinc-900/50',
+          // Text color
+          'text-foreground',
           // Border and ring
           'border-input ring-offset-background',
           // Placeholder
@@ -23,14 +27,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary',
           'transition-all duration-200',
           // File input styling
-          'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+          'file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground',
           // Disabled state
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted',
           // Error state
           error &&
             'border-destructive focus-visible:ring-destructive/30 focus-visible:border-destructive',
-          // Dark mode improvements
-          'dark:bg-zinc-900/50',
           className
         )}
         ref={ref}
