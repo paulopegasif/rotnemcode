@@ -1,6 +1,6 @@
 import { LogIn, UserPlus } from 'lucide-react';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -11,11 +11,15 @@ import { Input } from '@/components/ui/input';
 
 export function LoginView() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signIn, signInWithProvider, signUp } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Pegar a rota de origem para redirecionar após login
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +43,7 @@ export function LoginView() {
         toast.error(errorMessage);
       } else {
         toast.success(isSignUp ? 'Conta criada com sucesso!' : 'Login realizado!');
-        navigate('/');
+        navigate(from, { replace: true });
       }
     } catch (err) {
       console.error('Unexpected error:', err);

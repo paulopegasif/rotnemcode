@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,6 +9,7 @@ type ProtectedRouteProps = {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -19,7 +20,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // Salvar a rota original para redirecionar após login
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

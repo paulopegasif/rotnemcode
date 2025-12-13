@@ -4,6 +4,7 @@ import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFound';
 import { ComponentsView } from './views/ComponentsView';
+import { DebugAuth } from './views/DebugAuth';
 import { FavoritesView } from './views/FavoritesView';
 import { Home } from './views/Home';
 import { LoginView } from './views/LoginView';
@@ -20,7 +21,6 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
-    errorElement: <NotFoundPage />,
     children: [
       {
         index: true,
@@ -82,7 +82,16 @@ const router = createBrowserRouter([
         ),
         handle: { crumb: 'Settings' },
       },
+      {
+        path: 'debug-auth',
+        element: <DebugAuth />,
+        handle: { crumb: 'Debug Auth' },
+      },
     ],
+  },
+  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ]);
 
