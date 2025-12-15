@@ -214,7 +214,7 @@ export const AssetCard: React.FC<{
           <Button
             variant="secondary"
             size="sm"
-            className="bg-white/90 text-foreground hover:bg-white shadow-lg rounded-lg"
+            className="bg-card dark:bg-card text-foreground dark:text-foreground hover:bg-muted dark:hover:bg-muted shadow-lg rounded-lg"
             onClick={() => setShowPreview(true)}
           >
             <Eye className="h-4 w-4 mr-1.5" />
@@ -224,7 +224,7 @@ export const AssetCard: React.FC<{
             <Button
               variant="secondary"
               size="icon"
-              className="bg-white/90 text-foreground hover:bg-white shadow-lg rounded-lg h-9 w-9"
+              className="bg-card dark:bg-card text-foreground dark:text-foreground hover:bg-muted dark:hover:bg-muted shadow-lg rounded-lg h-9 w-9"
               onClick={handleCopy}
               aria-label="Copiar código"
             >

@@ -110,13 +110,13 @@ export function Sidebar({ isOpen, onClose: _onClose }: { isOpen: boolean; onClos
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 left-0 z-30 w-64 transform border-r border-border/50 transition-all duration-300 ease-spring',
+        'fixed top-16 left-0 bottom-0 z-30 w-64 transform border-r border-border/50 transition-all duration-300 ease-spring',
         'bg-background/80 backdrop-blur-xl',
         'md:translate-x-0 md:static md:flex-shrink-0',
         isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
       )}
     >
-      <div className="h-full flex flex-col pt-20 md:pt-4 overflow-y-auto">
+      <div className="h-full flex flex-col pt-4 overflow-y-auto">
         {/* Navigation Section */}
         <SidebarSection title="Navegação">
           <SidebarItem

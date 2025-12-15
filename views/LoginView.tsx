@@ -200,12 +200,12 @@ export function LoginView() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                className="text-sm font-medium text-foreground dark:text-foreground"
               >
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
@@ -222,12 +222,12 @@ export function LoginView() {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                className="text-sm font-medium text-foreground dark:text-foreground"
               >
                 Senha
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"

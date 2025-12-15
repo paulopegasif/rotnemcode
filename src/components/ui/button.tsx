@@ -8,11 +8,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md',
+        default:
+          'bg-primary text-primary-foreground hover:bg-primary/90 dark:hover:bg-primary/80 shadow-sm hover:shadow-md',
 
         // New gradient variant with glow effect
         gradient: [
           'bg-gradient-to-r from-primary to-primary-600',
+          'dark:from-primary/80 dark:to-primary-600/80',
           'text-white',
           'shadow-md',
           'hover:shadow-glow',
@@ -24,33 +26,37 @@ const buttonVariants = cva(
         // Success variant with emerald accent
         success: [
           'bg-accent text-accent-foreground',
-          'hover:bg-accent/90',
+          'hover:bg-accent/90 dark:hover:bg-accent/80',
           'shadow-sm hover:shadow-md',
         ].join(' '),
 
         // Destructive with improved styling
         destructive: [
           'bg-destructive text-destructive-foreground',
-          'hover:bg-destructive/90',
+          'hover:bg-destructive/90 dark:hover:bg-destructive/80',
           'shadow-sm hover:shadow-md',
         ].join(' '),
 
         outline: [
-          'border border-input bg-background',
-          'hover:bg-accent/10 hover:text-accent-foreground hover:border-accent/50',
+          'border border-input bg-background text-foreground',
+          'dark:border-border dark:bg-card',
+          'hover:bg-accent/10 dark:hover:bg-accent/5 hover:text-accent-foreground dark:hover:text-accent hover:border-accent/50 dark:hover:border-accent/30',
           'transition-colors',
         ].join(' '),
 
-        ghost: 'hover:bg-accent/10 hover:text-accent-foreground',
+        ghost:
+          'text-foreground dark:text-foreground hover:bg-accent/10 dark:hover:bg-accent/5 hover:text-accent-foreground dark:hover:text-accent transition-colors',
 
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm',
+        secondary:
+          'bg-secondary text-secondary-foreground dark:bg-secondary dark:text-secondary-foreground hover:bg-secondary/80 dark:hover:bg-secondary/70 shadow-sm',
 
         // Link variant
-        link: 'text-primary underline-offset-4 hover:underline p-0 h-auto',
+        link: 'text-primary dark:text-primary underline-offset-4 hover:underline p-0 h-auto dark:hover:text-primary/80',
 
         // Glass variant for glassmorphism designs
         glass: [
           'bg-white/80 dark:bg-zinc-900/80',
+          'text-foreground dark:text-foreground',
           'backdrop-blur-md',
           'border border-white/20 dark:border-white/10',
           'hover:bg-white/90 dark:hover:bg-zinc-900/90',

@@ -19,31 +19,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
-  /* Fix input/textarea background in light mode */
-  input,
-  textarea,
-  select {
-    background-color: #ffffff;
-    color: #18181b;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: #71717a;
-  }
-
-  .dark input,
-  .dark textarea,
-  .dark select {
-    background-color: rgba(24, 24, 27, 0.5);
-    color: #fafafa;
-  }
-
-  .dark input::placeholder,
-  .dark textarea::placeholder {
-    color: #a1a1aa;
-  }
 }
 
 @theme {

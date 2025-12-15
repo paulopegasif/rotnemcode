@@ -76,8 +76,8 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
         className={cn(
           // Base glass styles
           'rounded-xl border',
-          'bg-white/90 dark:bg-zinc-900/80',
-          'border-zinc-200/50 dark:border-white/10',
+          'bg-card/80 dark:bg-card/80',
+          'border-border/50 dark:border-border/20',
           'shadow-glass',
           blurClasses[blur],
           gradientClasses[gradient],
@@ -89,7 +89,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
           ],
           // Glow on hover
           glowOnHover && [
-            'hover:border-primary-500/30 dark:hover:border-primary-400/30',
+            'hover:border-primary/30 dark:hover:border-primary/30',
             'hover:shadow-glow',
           ],
           className

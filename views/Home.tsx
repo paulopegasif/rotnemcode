@@ -81,12 +81,6 @@ export function Home() {
         {/* Content */}
         <div className="relative px-6 py-16 md:px-12 md:py-20">
           <div className="max-w-3xl">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6 animate-fade-in">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Nova versão disponível</span>
-            </div>
-
             {/* Headline */}
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 animate-fade-in"
@@ -216,10 +210,10 @@ export function Home() {
 
         <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground dark:text-foreground mb-2">
               Pronto para organizar seus assets?
             </h3>
-            <p className="text-white/80">
+            <p className="text-muted-foreground dark:text-muted-foreground">
               Comece a fazer upload dos seus templates e components agora mesmo.
             </p>
           </div>
@@ -227,7 +221,7 @@ export function Home() {
             variant="secondary"
             size="lg"
             onClick={() => navigate('/upload')}
-            className="rounded-xl bg-white text-primary hover:bg-white/90 shadow-lg"
+            className="rounded-xl bg-card dark:bg-card text-foreground dark:text-foreground hover:bg-muted dark:hover:bg-muted shadow-lg"
           >
             <Plus className="h-5 w-5" />
             Começar Upload
